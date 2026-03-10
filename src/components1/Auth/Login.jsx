@@ -14,7 +14,7 @@ function Login() {
     e.preventDefault();
     if (!hasEnv || !auth) {
       try {
-        const res = await fetch("http://localhost:8080/health");
+        const res = await fetch("https://armanist.com");
         const data = await res.json();
         if (data?.allowDev) {
           localStorage.setItem("devUser", email);
@@ -32,7 +32,7 @@ function Login() {
       navigate("/checkout");
     } catch (e) {
       try {
-        const res = await fetch("http://localhost:8080/health");
+        const res = await fetch("https://armanist.com");
         const data = await res.json();
         if (data?.allowDev) {
           localStorage.setItem("devUser", email);

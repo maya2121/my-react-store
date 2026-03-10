@@ -5,7 +5,7 @@ import "../styles/admin.css";
 const Sidebar = () => {
   const navigate = useNavigate();
   const [adminName, setAdminName] = useState("Admin");
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://armanist.com";
   const [notifCount, setNotifCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifList, setNotifList] = useState([]);

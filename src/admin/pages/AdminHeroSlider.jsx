@@ -19,7 +19,7 @@ const AdminHeroSlider = () => {
     image: "",
     order: ""
   });
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://armanist.com";
 
   const getToken = async () => {
     if (!hasEnv || !auth) return null;

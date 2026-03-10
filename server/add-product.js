@@ -1,4 +1,4 @@
-const base = process.env.BASE_URL || 'http://localhost:8080'
+const base = process.env.BASE_URL || 'https://armanist.com'
 const product = {
   name: process.env.NAME || 'Demo Product',
   price: Number(process.env.PRICE || '49.99'),

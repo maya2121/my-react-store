@@ -4,8 +4,8 @@ import "./Hero.css";
 
 function Hero() {
   const navigate = useNavigate();
-  const baseUrl = "http://localhost:8080";
-  const defaultSlides = [
+  const baseUrl = "https://armanist.com";
+    const defaultSlides = [
     {
       id: "default-1",
       image: "/Images/img3.JPG",

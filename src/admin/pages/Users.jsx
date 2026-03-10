@@ -11,7 +11,7 @@ const Users = () => {
   const [editingId, setEditingId] = useState(null);
   const [editUser, setEditUser] = useState({ username: "", password: "" });
   const [statusMsg, setStatusMsg] = useState("");
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://armanist.com";
 
   const headersFor = (withContentType = false) => {
     const h = {};

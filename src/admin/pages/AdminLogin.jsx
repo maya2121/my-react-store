@@ -6,7 +6,7 @@ function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://armanist.com";
 
   const handleLogin = async (e) => {
     e.preventDefault();

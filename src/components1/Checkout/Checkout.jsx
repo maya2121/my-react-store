@@ -10,7 +10,7 @@ function Checkout({ cartItems }) {
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://armanist.com";
 
   const countryCodes = {
     LB: "+961",

@@ -10,8 +10,8 @@ function Navbar({ cartItems, setCartItems }) {
 
   // جلب الأقسام من السيرفر
   useEffect(() => {
-    fetch("http://localhost:8080/public/categories")
-      .then((res) => res.json())
+    fetch("https://armanist.com")   
+        .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
           setCategories(data);

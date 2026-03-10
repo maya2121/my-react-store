@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-const base = process.env.BASE_URL || 'http://localhost:8080'
+const base = process.env.BASE_URL || 'https://armanist.com'
 const token = process.env.ID_TOKEN || ''
 const adminUser = process.env.ADMIN_USERNAME || ''
 const adminPass = process.env.ADMIN_PASSWORD || ''

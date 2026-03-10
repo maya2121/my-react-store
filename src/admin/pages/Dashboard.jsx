@@ -6,7 +6,7 @@ import "../styles/admin.css";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://armanist.com";
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [admins, setAdmins] = useState([]);

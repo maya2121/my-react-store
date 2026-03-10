@@ -27,7 +27,7 @@ function Register() {
           onClick={async () => {
             try {
               if (!hasEnv || !auth) {
-                const res = await fetch("http://localhost:8080/health");
+                const res = await fetch("https://armanist.com");
                 const data = await res.json();
                 if (data?.allowDev) {
                   localStorage.setItem("devUser", email);
@@ -41,7 +41,7 @@ function Register() {
               navigate("/login");
             } catch (e) {
               try {
-                const res = await fetch("http://localhost:8080/health");
+                const res = await fetch("https://armanist.com/health");
                 const data = await res.json();
                 if (data?.allowDev) {
                   localStorage.setItem("devUser", email);

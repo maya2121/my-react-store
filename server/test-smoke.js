@@ -1,4 +1,4 @@
-const base = process.env.BASE_URL || 'http://localhost:8080'
+const base = process.env.BASE_URL || 'https://armanist.com'
 const assert = (cond, msg) => { if (!cond) throw new Error(msg) }
 
 async function main() {

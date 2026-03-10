@@ -8,8 +8,8 @@ function Products({ addToCart }) {
   const [addedProduct, setAddedProduct] = useState(null);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const baseUrl = "http://localhost:8080";
-  useEffect(() => {
+  const baseUrl = "https://armanist.com";
+    useEffect(() => {
     (async () => {
       try {
         const [resP, resC] = await Promise.all([

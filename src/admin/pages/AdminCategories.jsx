@@ -6,7 +6,7 @@ import "../styles/admin.css";
 
 const AdminCategories = () => {
   const navigate = useNavigate();
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://armanist.com";
   const [categories, setCategories] = useState([]);
   const [newCat, setNewCat] = useState({ name: "", slug: "" });
   const [editingId, setEditingId] = useState(null);

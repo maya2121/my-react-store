@@ -8,8 +8,7 @@ function ProductDetails({ addToCart }) {
   const [product, setProduct] = useState(null);
   const [active, setActive] = useState(0);
   const [lang, setLang] = useState("en");
-  const baseUrl = "http://localhost:8080";
-
+  const baseUrl = "https://armanist.com";
 
   useEffect(() => {
     (async () => {

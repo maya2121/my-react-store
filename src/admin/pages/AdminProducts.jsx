@@ -21,7 +21,7 @@ const AdminProducts = () => {
     images: []
   });
   const [editingId, setEditingId] = useState(null);
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = "https://armanist.com";
   const [discountAll, setDiscountAll] = useState("");
   const [categories, setCategories] = useState([]);
   const getToken = async () => {
