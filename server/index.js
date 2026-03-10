@@ -15,7 +15,6 @@ const app = express()
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-const cors = require ("cors");
 app.use(cors({origin: ["https://armanist.com"]}))
 
 let adminInitialized = false
@@ -680,5 +679,5 @@ app.get("*", (req, res) => {
 })
 const port = parseInt(process.env.PORT || '8080', 10)
 app.listen(port, () => {
-  console.log(`server listening on http://localhost:${port}`)
+  console.log(`server listening on port ${port}`)
 })
