@@ -1,0 +1,128 @@
+.checkout-wrapper {
+  background-color: #0e0c0c;
+  min-height: 100vh;
+  padding: 40px;
+}
+
+.checkout-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 25px;
+}
+
+.billing-section, .summary-section {
+  background: #0a0a0a;
+  color: aliceblue;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.summary-section {
+  background-color: #141414;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 15px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #111;
+  color: white;
+}
+
+.error {
+  color: red;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.pay-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #111;
+  border: 1px solid #333;
+  padding: 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.pay-card:hover {
+  border-color: red;
+  transform: scale(1.02);
+}
+
+.pay-card.active {
+  border: 1px solid red;
+  background: #1c0e0e;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #333;
+  padding: 12px 0;
+}
+
+.total-row {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 25px 0;
+  display: flex;
+  justify-content: space-between;
+  color: rgb(246, 235, 235);
+}
+
+.confirm-btn {
+  width: 100%;
+  padding: 16px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.confirm-btn:hover {
+  background-color: #c12a36;
+}
+
+.phone-line {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.phone-line select {
+  background: #111;
+  color: white;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.country-code {
+  background: #1a1a1a;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  color: white;
+}
+
+.phone-line input {
+  flex: 1;
+}

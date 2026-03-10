@@ -1,0 +1,103 @@
+body{
+  margin: 0px;
+}
+
+.login-page {
+    height: 100vh;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .login-box {
+    background: #111;
+    padding: 40px;
+    border-radius: 12px;
+    width: 350px;
+    box-shadow: 0 10px 30px rgba(0,0,0);
+    text-align: center;
+  }
+  
+  .login-box h2 {
+    color: white;
+    margin-bottom: 25px;
+  }
+  
+  .login-box input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 8px;
+    background: #1f1f1f;
+    color: white;
+  }
+  
+  .login-box input:focus {
+    outline: 1px solid red;
+  }
+  
+  .login-btn {
+    width: 50%;
+    padding: 12px;
+    background: red;
+    border: none;
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .login-btn:hover {
+    background: #ff4d4d;
+  }
+  
+  .register-text {
+    color: #aaa;
+    margin-top: 15px;
+  }
+  
+  .register-text span {
+    color: red;
+    cursor: pointer;
+  }
+
+
+.Logo1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.Logo1 img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50px;
+    margin-left: 80px;
+    position:relative;
+}
+@media (max-width: 768px) {
+
+  .login-box {
+    width: 100%;
+    max-width: 350px;
+    padding: 25px;
+  }
+
+  .Logo1 {
+    justify-content: center;
+  }
+
+  .Logo1 img {
+    width: 140px;
+    height: 140px;
+    margin-left: 0;
+  }
+
+  .login-btn {
+    width: 100%;
+  }
+}

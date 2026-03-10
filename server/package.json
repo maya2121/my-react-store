@@ -1,0 +1,19 @@
+{
+  "name": "firebase-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "add:product": "node add-product.js",
+    "test:smoke": "node test-smoke.js",
+    "test:products": "node test-products-auth.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "firebase-admin": "^12.7.0",
+    "nodemailer": "^8.0.1"
+  }
+}

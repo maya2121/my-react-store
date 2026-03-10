@@ -1,0 +1,27 @@
+[
+  {
+    "id": "cat-watches",
+    "name": "Watches",
+    "slug": "watches"
+  },
+  {
+    "id": "cat-wallets",
+    "name": "Wallets",
+    "slug": "wallets"
+  },
+  {
+    "id": "cat-perfumes",
+    "name": "Perfumes",
+    "slug": "perfumes"
+  },
+  {
+    "id": "1772639050400",
+    "name": "shrits",
+    "slug": "shrits"
+  },
+  {
+    "id": "1772753289921",
+    "name": "shose",
+    "slug": "shose"
+  }
+]

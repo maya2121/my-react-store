@@ -1,0 +1,142 @@
+[
+  {
+    "id": "1772006625476",
+    "name": "watch",
+    "price": 500,
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772006622/jlsim8lf1pn8klvgnmsx.jpg",
+    "description": "A watch made from the finest Italian leather and movement.",
+    "category": "Watches",
+    "discountPercent": 10,
+    "images": [
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772006622/jlsim8lf1pn8klvgnmsx.jpg",
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772652082/gcaaysrhluukajetnh9o.jpg"
+    ],
+    "descriptionAr": "ساعة فخمة",
+    "descriptionEn": "A watch"
+  },
+  {
+    "id": "1772006696371",
+    "name": "wallet",
+    "price": 50,
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772006695/vfp1ru8xmtifqgleuhyg.jpg",
+    "description": "Crocodile leather wallet",
+    "category": "Wallets",
+    "discountPercent": 0
+  },
+  {
+    "id": "1772006759129",
+    "name": "French perfume",
+    "price": 100,
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772006758/w8zyajyj2hmzcs4qv7ig.jpg",
+    "description": "French perfume, the finest types of perfumes",
+    "category": "Perfumes",
+    "discountPercent": 0
+  },
+  {
+    "id": "1772636756780",
+    "name": "A luxurious watch",
+    "price": 100,
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772621263/j7gc4hxxltmaim7da8xm.jpg",
+    "description": "Men's luxury wristwatch against water ",
+    "descriptionAr": "ساعة يد فخمة رجالية ",
+    "descriptionEn": "Men's luxury wristwatch",
+    "category": "Watches",
+    "salePrice": 95,
+    "discountPercent": 5,
+    "images": [
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772621286/cdrlu5hcwlvwrk8jpyj5.jpg"
+    ]
+  },
+  {
+    "id": "1772636966671",
+    "name": "Black wallet",
+    "price": 10,
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772621456/sesfk1qn9yuuntfhnmbt.jpg",
+    "description": "Luxurious men's distinctive black wallet\n",
+    "descriptionAr": "محفظة سوداء",
+    "descriptionEn": "Black wallet",
+    "category": "Wallets",
+    "images": [
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772621484/hdelp5n6hbiykp6pgnpo.jpg",
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772621492/lqsn2ql0qhijzpv7lsf2.jpg"
+    ]
+  },
+  {
+    "id": "1772637241013",
+    "name": "Distinctive wallet",
+    "price": 200,
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772621743/d0efck5kcvonapfrxqrm.jpg",
+    "description": "A distinctive wallet in which you can put your pen and belonging cards",
+    "descriptionAr": "محفظة مميزة ",
+    "descriptionEn": "Distinctive wallet",
+    "category": "Wallets",
+    "images": [
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772621750/bctn7mvi9cceetazwlxl.jpg",
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772621756/x6uojct7tlsmfdtghu2w.jpg",
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772621771/b9rdimomgzaes6kxpwrd.jpg"
+    ]
+  },
+  {
+    "id": "1772637588397",
+    "name": "Perfume",
+    "price": 50,
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772622070/hyfr0asppe9eosf8nlxg.jpg",
+    "description": "Perfume with an oasis scent",
+    "descriptionAr": "عطر برائحة فواحة",
+    "descriptionEn": "Perfume with an oasis scent",
+    "category": "Perfumes",
+    "images": [
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772622002/hdozmpfe0jpuhcvipnr4.jpg",
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772622046/y3xnygpqfxczv1eskfnk.jpg",
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772622052/wfuki7smzxkse9c9wkqh.jpg",
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772622063/oiddd1psqy2ccvc3rs9e.jpg"
+    ]
+  },
+  {
+    "id": "1772639226990",
+    "name": "shrit",
+    "price": 10,
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772623728/nmes1bfuluj5ksbdsmed.jpg",
+    "description": "Beautiful men's shirts at affordable prices",
+    "descriptionAr": "قمصان رجالية",
+    "descriptionEn": "men's shirts",
+    "category": "shrits",
+    "images": [
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772623747/z5uoa2zes2ckfkkomsur.jpg",
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772623756/o9rokjevt82ggfkboczy.jpg"
+    ]
+  },
+  {
+    "id": "1772639351643",
+    "name": "shrit",
+    "price": 20,
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772623854/bjgha9vthq6cxa7ujnsu.jpg",
+    "description": "Men's shirt in beautiful colours",
+    "descriptionAr": "قمصان رجالية بالوان جميلة",
+    "descriptionEn": "Men's shirt in beautiful colours",
+    "category": "shrits",
+    "salePrice": 19.4,
+    "discountPercent": 3,
+    "images": [
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772623860/jc9kqjunonoz3qc65sxd.jpg",
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772623867/vtzhpql4t3jvobdzxbov.jpg",
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772623877/mp50dyap6eekoeg8tmu6.jpg"
+    ]
+  },
+  {
+    "id": "1772753239720",
+    "name": "watches",
+    "price": 7,
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772737743/ma4kgqrwjmutayakjjpl.jpg",
+    "description": "watches beautiful",
+    "descriptionAr": "ساعة جميلة",
+    "descriptionEn": "men's watches",
+    "category": "Watches",
+    "salePrice": 6.86,
+    "discountPercent": 2,
+    "images": [
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772737752/l3vg3wugvy7czz42gpcv.jpg",
+      "https://res.cloudinary.com/dshqatfwi/image/upload/v1772737763/s6bay5dhylrftz4ibtpa.jpg"
+    ]
+  }
+]

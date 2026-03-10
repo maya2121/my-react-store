@@ -1,0 +1,40 @@
+[
+  {
+    "id": "hero-2",
+    "title": "Luxury Watches",
+    "subtitle": "Premium craftsmanship for every occasion",
+    "buttonText": "Explore",
+    "buttonLink": "#watches",
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772737471/qivt03b3htdkptwkphfm.jpg",
+    "order": 1
+  },
+  {
+    "id": "hero-3",
+    "title": "Signature Accessories",
+    "subtitle": "Wallets and perfumes designed to impress",
+    "buttonText": "Discover",
+    "buttonLink": "#products-section",
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772623468/fyvnrlxpfbglfwdhponl.jpg",
+    "order": 4
+  },
+  {
+    "id": "1772637708549",
+    "title": "perfume",
+    "subtitle": "perfumes with an oasis scent",
+    "buttonText": "Shop Now",
+    "buttonLink": "#products-section",
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772623332/zaduphirxfiwjek4ynpy.jpg",
+    "order": 2,
+    "createdAt": 1772637708549
+  },
+  {
+    "id": "1772637843720",
+    "title": "Men's wallets",
+    "subtitle": "Men's wallets distinctiv",
+    "buttonText": "Shop Now",
+    "buttonLink": "#products-section",
+    "image": "https://res.cloudinary.com/dshqatfwi/image/upload/v1772623353/epqzgtn6dnpwduwxydqe.jpg",
+    "order": 3,
+    "createdAt": 1772637843720
+  }
+]
