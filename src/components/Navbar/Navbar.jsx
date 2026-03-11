@@ -7,6 +7,7 @@ function Navbar({ cartItems, setCartItems }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [categories, setCategories] = useState([]); // حالة لتخزين الأقسام
   const navigate = useNavigate();
+  const cartCount = Array.isArray(cartItems) ? cartItems.length : 0;
 
   // جلب الأقسام من السيرفر
   useEffect(() => {
@@ -63,6 +64,7 @@ function Navbar({ cartItems, setCartItems }) {
 
         <div className="nav-actions" onClick={() => setIsCartOpen(true)}>
           <i className="bi bi-cart"></i>
+          {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
         </div>
       </nav>
 
