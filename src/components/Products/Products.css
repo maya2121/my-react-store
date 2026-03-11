@@ -1,11 +1,6 @@
 *{
   user-select: none;
 }
-
-body{
-  max-width: 1400px;
-  margin: auto;
-}
 /* الصفحة */
 .products-page {
   padding: 60px;
@@ -22,7 +17,7 @@ body{
 .products-address{
   text-align: center;
   color: #fff;
-  background-color:black;
+  background-colo:#fa4747;
   padding: 10px;
   margin: 30px 0;
   border-radius: 10px;
