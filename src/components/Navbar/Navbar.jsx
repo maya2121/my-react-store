@@ -47,7 +47,8 @@ function Navbar({ cartItems, setCartItems }) {
   ☰
 </div>
 
-<div className={`nav-links ${menuOpen ? "active" : ""}`}>          <span onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+<div className={`nav-links ${menuOpen ? "active" : ""}`}>     
+      <span onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
             Home
           </span>
 
