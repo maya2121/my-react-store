@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar.jsx";
 import Hero from "./components/Hero/Hero.jsx";
@@ -73,6 +73,26 @@ function AppContent({ cartItems, setCartItems, addToCart }) {
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("cartItems_v1");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return;
+      const cleaned = parsed
+        .filter((i) => i && typeof i === "object" && i.id)
+        .map((i) => ({ ...i, qty: Math.max(1, Number(i.qty) || 1) }));
+      setCartItems(cleaned);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("cartItems_v1", JSON.stringify(cartItems));
+    } catch {}
+  }, [cartItems]);
+
   const addToCart = (product) => {
     setCartItems((prev) => {
       const items = Array.isArray(prev) ? prev : [];
