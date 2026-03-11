@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const SalesFilter = () => {
-  const [activeTab, setActiveTab] = useState("monthly");
+  const [, setActiveTab] = useState("monthly");
   const [activeType, setActiveType] = useState("sales");
 
   return (

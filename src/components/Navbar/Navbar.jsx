@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; 
+import { useEffect, useRef, useState } from "react"; 
 import { useNavigate } from "react-router-dom";
 import SideCart from "../Cart/SideCart";
 import "./Navbar.css";
@@ -7,11 +7,17 @@ function Navbar({ cartItems, setCartItems }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]); // حالة لتخزين الأقسام
+  const [isCollectionsOpen, setIsCollectionsOpen] = useState(false);
   const navigate = useNavigate();
+  const cartCount = Array.isArray(cartItems)
+    ? cartItems.reduce((acc, item) => acc + (Number(item?.qty) || 0), 0)
+    : 0;
+  const collectionsRef = useRef(null);
 
   // جلب الأقسام من السيرفر
   useEffect(() => {
-    fetch("https://armanist.com/public/categories")        .then((res) => res.json())
+    fetch("https://armanist.com")   
+        .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
           setCategories(data);
@@ -19,6 +25,17 @@ function Navbar({ cartItems, setCartItems }) {
       })
       .catch((err) => console.error("Error fetching categories:", err));
   }, []);
+
+  useEffect(() => {
+    const handleOutside = (e) => {
+      if (!isCollectionsOpen) return;
+      if (collectionsRef.current && !collectionsRef.current.contains(e.target)) {
+        setIsCollectionsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside, true);
+    return () => document.removeEventListener("mousedown", handleOutside, true);
+  }, [isCollectionsOpen]);
 
   return (
     <>
@@ -42,8 +59,8 @@ function Navbar({ cartItems, setCartItems }) {
             Products
           </span>
 
-          <div className="collections">
-            <span>Collections ▾</span>
+          <div className={`collections ${isCollectionsOpen ? "open" : ""}`} ref={collectionsRef}>
+            <span onClick={() => setIsCollectionsOpen((v) => !v)}>Collections ▾</span>
             <div className="dropdown">
               {categories.map((cat) => (
                 <p 
@@ -55,6 +72,7 @@ function Navbar({ cartItems, setCartItems }) {
                     } else {
                       navigate(`/?category=${cat.slug}`);
                     }
+                    setIsCollectionsOpen(false);
                   }}
                 >
                   {cat.name}
@@ -64,15 +82,8 @@ function Navbar({ cartItems, setCartItems }) {
           </div>
         </div>
         <div className="nav-actions" onClick={() => setIsCartOpen(true)}>
-  <i className="bi bi-cart"></i>
-
-  {cartItems.length > 0 && (
-    <span className="cart-count">
-      {cartItems.length}
-    </span>
-  )}
-
-</div>
+          <i className="bi bi-cart"></i>
+        </div>
       </nav>
 
       <SideCart

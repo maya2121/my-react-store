@@ -17,7 +17,7 @@ import Users from "./admin/pages/Users.jsx";
 import Analytics from "./admin/pages/Analytics.jsx";
 import AdminLogin from "./admin/pages/AdminLogin.jsx";
 
-function AppContent({ cartItems, setCartItems }) {
+function AppContent({ cartItems, setCartItems, addToCart }) {
   const location = useLocation();
 
   // تحديد إذا كنا في صفحات الأدمن
@@ -38,7 +38,7 @@ function AppContent({ cartItems, setCartItems }) {
           element={
             <>
               <Hero />
-              <Products addToCart={(product) => setCartItems(prev => [...prev, product])} />
+              <Products addToCart={addToCart} />
             </>
           }
         />
@@ -46,7 +46,7 @@ function AppContent({ cartItems, setCartItems }) {
         {/* صفحة تفاصيل المنتج */}
         <Route 
           path="/product/:id" 
-          element={<ProductDetails addToCart={(p) => setCartItems(prev => [...prev, p])} />} 
+          element={<ProductDetails addToCart={addToCart} />} 
         />
 
         {/* باقي الصفحات */}
@@ -72,16 +72,11 @@ function AppContent({ cartItems, setCartItems }) {
 }
 
 function App() {
-  const [cartItems, setCartItems] = useState(() => {
-    const savedCart = localStorage.getItem("cart");
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cartItems));
-  }, [cartItems]);
+  const [cartItems, setCartItems] = useState([]);
+
   return (
     <BrowserRouter>
-      <AppContent cartItems={cartItems} setCartItems={setCartItems} />
+      <AppContent cartItems={cartItems} setCartItems={setCartItems} addToCart={addToCart} />
     </BrowserRouter>
   );
 }

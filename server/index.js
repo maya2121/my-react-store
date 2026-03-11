@@ -15,7 +15,7 @@ const app = express()
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-app.use(cors({origin: ["https://armanist.com"]}))
+app.use(cors({ origin: ["https://armanist.com", "https://www.armanist.com"] }))
 
 let adminInitialized = false
 const allowDev = (process.env.ALLOW_DEV_UNAUTH || 'false').toLowerCase() === 'true'
