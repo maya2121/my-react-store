@@ -72,8 +72,13 @@ function AppContent({ cartItems, setCartItems }) {
 }
 
 function App() {
-  const [cartItems, setCartItems] = useState([]);
-
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem("cart");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cartItems));
+  }, [cartItems]);
   return (
     <BrowserRouter>
       <AppContent cartItems={cartItems} setCartItems={setCartItems} />
