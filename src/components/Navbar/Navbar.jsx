@@ -8,7 +8,9 @@ function Navbar({ cartItems, setCartItems }) {
   const [categories, setCategories] = useState([]); // حالة لتخزين الأقسام
   const [isCollectionsOpen, setIsCollectionsOpen] = useState(false);
   const navigate = useNavigate();
-  const cartCount = Array.isArray(cartItems) ? cartItems.length : 0;
+  const cartCount = Array.isArray(cartItems)
+    ? cartItems.reduce((acc, item) => acc + (Number(item?.qty) || 0), 0)
+    : 0;
   const collectionsRef = useRef(null);
 
   // جلب الأقسام من السيرفر

@@ -17,7 +17,7 @@ import Users from "./admin/pages/Users.jsx";
 import Analytics from "./admin/pages/Analytics.jsx";
 import AdminLogin from "./admin/pages/AdminLogin.jsx";
 
-function AppContent({ cartItems, setCartItems }) {
+function AppContent({ cartItems, setCartItems, addToCart }) {
   const location = useLocation();
 
   // تحديد إذا كنا في صفحات الأدمن
@@ -38,7 +38,7 @@ function AppContent({ cartItems, setCartItems }) {
           element={
             <>
               <Hero />
-              <Products addToCart={(product) => setCartItems(prev => [...prev, product])} />
+              <Products addToCart={addToCart} />
             </>
           }
         />
@@ -46,7 +46,7 @@ function AppContent({ cartItems, setCartItems }) {
         {/* صفحة تفاصيل المنتج */}
         <Route 
           path="/product/:id" 
-          element={<ProductDetails addToCart={(p) => setCartItems(prev => [...prev, p])} />} 
+          element={<ProductDetails addToCart={addToCart} />} 
         />
 
         {/* باقي الصفحات */}
@@ -73,10 +73,20 @@ function AppContent({ cartItems, setCartItems }) {
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
+  const addToCart = (product) => {
+    setCartItems((prev) => {
+      const items = Array.isArray(prev) ? prev : [];
+      const id = product?.id;
+      if (!id) return items;
+      const idx = items.findIndex((i) => i?.id === id);
+      if (idx === -1) return [...items, { ...product, qty: 1 }];
+      return items.map((i, n) => (n === idx ? { ...i, qty: (Number(i.qty) || 1) + 1 } : i));
+    });
+  };
 
   return (
     <BrowserRouter>
-      <AppContent cartItems={cartItems} setCartItems={setCartItems} />
+      <AppContent cartItems={cartItems} setCartItems={setCartItems} addToCart={addToCart} />
     </BrowserRouter>
   );
 }

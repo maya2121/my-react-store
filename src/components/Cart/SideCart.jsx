@@ -4,6 +4,31 @@ import { useNavigate } from "react-router-dom";
 function SideCart({ cartItems, setCartItems, isCartOpen, setIsCartOpen }) {
 
   const navigate = useNavigate();
+  const incQty = (id) => {
+    setCartItems((prev) => {
+      const items = Array.isArray(prev) ? prev : [];
+      return items.map((i) => (i?.id === id ? { ...i, qty: (Number(i.qty) || 1) + 1 } : i));
+    });
+  };
+
+  const decQty = (id) => {
+    setCartItems((prev) => {
+      const items = Array.isArray(prev) ? prev : [];
+      return items.flatMap((i) => {
+        if (i?.id !== id) return [i];
+        const nextQty = (Number(i.qty) || 1) - 1;
+        if (nextQty <= 0) return [];
+        return [{ ...i, qty: nextQty }];
+      });
+    });
+  };
+
+  const removeAll = (id) => {
+    setCartItems((prev) => {
+      const items = Array.isArray(prev) ? prev : [];
+      return items.filter((i) => i?.id !== id);
+    });
+  };
 
   return (
     <>
@@ -20,14 +45,25 @@ function SideCart({ cartItems, setCartItems, isCartOpen, setIsCartOpen }) {
 
               <div className="item-info">
                 <h4>{item.name}</h4>
-                <p>{typeof item.price === "number" ? item.price.toFixed(2) : item.price} $</p>
+                <p>
+                  {typeof item.price === "number" ? item.price.toFixed(2) : item.price} ${" "}
+                  {Number(item.qty) > 0 ? `x${item.qty}` : ""}
+                </p>
+              </div>
+
+              <div className="qty-controls">
+                <button type="button" className="qty-btn" onClick={() => decQty(item.id)}>
+                  −
+                </button>
+                <span className="qty-value">{Number(item.qty) || 1}</span>
+                <button type="button" className="qty-btn" onClick={() => incQty(item.id)}>
+                  +
+                </button>
               </div>
 
               <button
                 className="delete-btn"
-                onClick={() =>
-                  setCartItems(cartItems.filter((cartItem) => cartItem.id !== item.id))
-                }
+                onClick={() => removeAll(item.id)}
               >
                 🗑
               </button>

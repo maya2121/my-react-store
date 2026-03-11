@@ -21,10 +21,11 @@ function Checkout({ cartItems }) {
     SY: "+963"
   };
 
-  const totalPrice = cartItems.reduce(
-    (acc, item) => acc + parseFloat(item.price),
-    0
-  );
+  const totalPrice = (Array.isArray(cartItems) ? cartItems : []).reduce((acc, item) => {
+    const price = Number.parseFloat(item?.price);
+    const qty = Number(item?.qty) || 1;
+    return acc + (Number.isFinite(price) ? price * qty : 0);
+  }, 0);
   useEffect(() => {
     const hasToken = !!localStorage.getItem("idToken");
     const hasDevUser = !!localStorage.getItem("devUser");
@@ -49,7 +50,11 @@ function Checkout({ cartItems }) {
       return;
     }
     try {
-      const total = cartItems.reduce((acc, item) => acc + parseFloat(item.price), 0);
+      const total = (Array.isArray(cartItems) ? cartItems : []).reduce((acc, item) => {
+        const price = Number.parseFloat(item?.price);
+        const qty = Number(item?.qty) || 1;
+        return acc + (Number.isFinite(price) ? price * qty : 0);
+      }, 0);
       const res = await fetch(`${baseUrl}/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -136,7 +141,7 @@ function Checkout({ cartItems }) {
           <div className="items-list">
             {cartItems.map(item => (
               <div key={item.id} className="item-row">
-                <span>{item.name}</span>
+                <span>{item.name}{Number(item.qty) > 1 ? ` x${item.qty}` : ""}</span>
                 <span>{item.price}</span>
               </div>
             ))}

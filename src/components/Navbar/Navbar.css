@@ -135,8 +135,34 @@ body{
 .item-info h4 { font-size: 14px; margin-bottom: 5px; color: #333; }
 .item-info p { color: #666; font-weight: bold; }
 
-.delete-btn {
+.qty-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     margin-left: auto;
+}
+
+.qty-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+}
+
+.qty-btn:hover {
+    background: #f3f4f6;
+}
+
+.qty-value {
+    min-width: 18px;
+    text-align: center;
+    color: #111827;
+    font-weight: 700;
+}
+
+.delete-btn {
     background: #fff0f0;
     border: none;
     color:red;
