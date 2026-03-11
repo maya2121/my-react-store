@@ -27,7 +27,7 @@ function Register() {
           onClick={async () => {
             try {
               if (!hasEnv || !auth) {
-                const res = await fetch("https://armanist.com");
+                const res = await fetch("https://armanist.com/public/categories");
                 const data = await res.json();
                 if (data?.allowDev) {
                   localStorage.setItem("devUser", email);
