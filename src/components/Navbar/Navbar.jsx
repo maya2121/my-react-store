@@ -16,8 +16,7 @@ function Navbar({ cartItems, setCartItems }) {
 
   // جلب الأقسام من السيرفر
   useEffect(() => {
-    fetch("https://armanist.com")   
-        .then((res) => res.json())
+    fetch("https://armanist.com/public/categories")        .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
           setCategories(data);
@@ -82,8 +81,13 @@ function Navbar({ cartItems, setCartItems }) {
           </div>
         </div>
         <div className="nav-actions" onClick={() => setIsCartOpen(true)}>
-          <i className="bi bi-cart"></i>
-        </div>
+  <i className="bi bi-cart"></i>
+
+  {cartCount > 0 && (
+    <span className="cart-count">{cartCount}</span>
+  )}
+
+</div>
       </nav>
 
       <SideCart
