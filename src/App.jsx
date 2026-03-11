@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar.jsx";
 import Hero from "./components/Hero/Hero.jsx";
@@ -73,6 +73,41 @@ function AppContent({ cartItems, setCartItems, addToCart }) {
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
+  const [cartHydrated, setCartHydrated] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("cartItems_v1");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed
+            .filter((i) => i && typeof i === "object" && i.id)
+            .map((i) => ({ ...i, qty: Math.max(1, Number(i.qty) || 1) }));
+          setCartItems(cleaned);
+        }
+      }
+    } catch {}
+    setCartHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!cartHydrated) return;
+    try {
+      localStorage.setItem("cartItems_v1", JSON.stringify(cartItems));
+    } catch {}
+  }, [cartHydrated, cartItems]);
+
+  const addToCart = (product) => {
+    setCartItems((prev) => {
+      const items = Array.isArray(prev) ? prev : [];
+      const id = product?.id;
+      if (!id) return items;
+      const idx = items.findIndex((i) => i?.id === id);
+      if (idx === -1) return [...items, { ...product, qty: 1 }];
+      return items.map((i, n) => (n === idx ? { ...i, qty: (Number(i.qty) || 1) + 1 } : i));
+    });
+  };
 
   return (
     <BrowserRouter>
