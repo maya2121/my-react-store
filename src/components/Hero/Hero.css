@@ -83,3 +83,44 @@ rgba(255,0,0,0.2)
     transform: translateY(0);
     }
     }
+    /* ===============================
+   HERO MOBILE
+================================ */
+
+@media (max-width:900px){
+
+  .hero{
+  height:520px;
+  }
+  
+  .hero-content h1{
+  font-size:42px;
+  }
+  
+  }
+  
+  @media (max-width:600px){
+  
+  .hero{
+  height:420px;
+  }
+  
+  .hero-content{
+  left:5%;
+  right:5%;
+  }
+  
+  .hero-content h1{
+  font-size:32px;
+  }
+  
+  .hero-content p{
+  font-size:14px;
+  }
+  
+  .hero-content button{
+  padding:12px 22px;
+  font-size:14px;
+  }
+  
+  }

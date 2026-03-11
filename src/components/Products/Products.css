@@ -2,6 +2,10 @@
   user-select: none;
 }
 
+body{
+  max-width: 1400px;
+  margin: auto;
+}
 /* الصفحة */
 .products-page {
   padding: 60px;
@@ -29,9 +33,8 @@
 /* الشبكة */
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(3,1fr);
-  gap:25px;
-  margin-bottom: 50px;
+  grid-template-columns: repeat(4,1fr);
+  gap:20px;
 }
 
 /* الكارد */
@@ -155,3 +158,46 @@
   50% { transform: translateY(-25px); }
   100% { transform: translateY(0); }
 }
+@media (max-width: 1024px){
+
+  .products-grid{
+  grid-template-columns:repeat(2,1fr);
+  }
+  
+  }
+  
+  @media (max-width: 600px){
+  
+  .products-grid{
+  grid-template-columns:1fr;
+  }
+  
+  .products-container h1{
+  font-size:26px;
+  }
+  
+  .products-address{
+  font-size:20px;
+  }
+  
+  .product-card img{
+  height:220px;
+  object-fit:cover;
+  }
+  
+  }
+  @media (max-width:600px){
+
+    .By-now{
+    width:100%;
+    padding:12px;
+    font-size:16px;
+    }
+    
+    .details-btn{
+    width:100%;
+    margin-top:5px;
+    }
+    
+    }
+

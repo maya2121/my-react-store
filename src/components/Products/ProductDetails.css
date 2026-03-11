@@ -94,3 +94,50 @@
   padding: 24px;
   text-align: center;
 }
+
+/* ===============================
+   MOBILE RESPONSIVE
+================================ */
+
+@media (max-width: 900px){
+
+  .detail-grid{
+  grid-template-columns:1fr;
+  }
+  
+  .detail-main img{
+  height:320px;
+  }
+  
+  }
+  
+  @media (max-width:600px){
+  
+  .detail-wrapper{
+  padding:20px;
+  }
+  
+  .detail-main img{
+  height:260px;
+  }
+  
+  .detail-info{
+  padding:18px;
+  }
+  
+  .price-new{
+  font-size:1.3rem;
+  }
+  
+  .detail-buy{
+  width:100%;
+  padding:14px;
+  font-size:16px;
+  }
+  
+  .detail-thumbs .thumb{
+  width:60px;
+  height:60px;
+  }
+  
+  }

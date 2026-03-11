@@ -5,6 +5,7 @@ import "./Navbar.css";
 
 function Navbar({ cartItems, setCartItems }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]); // حالة لتخزين الأقسام
   const navigate = useNavigate();
 
@@ -22,12 +23,15 @@ function Navbar({ cartItems, setCartItems }) {
   return (
     <>
       <nav className="navbar">
-        <div className="Logo">
-          <img src="/Images/logo4.png" alt="Logo" />
-        </div>
+      <div className="Logo">
+  <img src="/Images/logo4.png" alt="Logo" />
+</div>
 
-        <div className="nav-links">
-          <span onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+<div className="mobile-menu-btn" onClick={() => setMenuOpen(!menuOpen)}>
+  ☰
+</div>
+
+<div className={`nav-links ${menuOpen ? "active" : ""}`}>          <span onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
             Home
           </span>
 

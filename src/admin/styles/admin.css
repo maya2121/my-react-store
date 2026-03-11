@@ -597,3 +597,63 @@
     grid-template-columns: 1fr;
   }
 }
+/* ===============================
+   ADMIN MOBILE
+================================ */
+
+@media (max-width:1000px){
+
+  .admin-main-content{
+  padding:25px;
+  }
+  
+  .card{
+  padding:20px;
+  }
+  
+  .admin-table{
+  font-size:13px;
+  }
+  
+  }
+  
+  @media (max-width:700px){
+  
+  .admin-table{
+  display:block;
+  overflow-x:auto;
+  white-space:nowrap;
+  }
+  
+  .card input,
+  .card textarea,
+  .card select{
+  font-size:14px;
+  }
+  
+  .btn-primary{
+  width:100%;
+  margin-top:5px;
+  }
+  
+  .dashboard-card{
+  padding:25px;
+  }
+  
+  }
+  
+  @media (max-width:500px){
+  
+  .admin-main-content{
+  padding:15px;
+  }
+  
+  .page-title{
+  font-size:20px;
+  }
+  
+  .brand{
+  font-size:16px;
+  }
+  
+  }
