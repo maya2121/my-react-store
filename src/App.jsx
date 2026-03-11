@@ -73,25 +73,30 @@ function AppContent({ cartItems, setCartItems, addToCart }) {
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
+  const [cartHydrated, setCartHydrated] = useState(false);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem("cartItems_v1");
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return;
-      const cleaned = parsed
-        .filter((i) => i && typeof i === "object" && i.id)
-        .map((i) => ({ ...i, qty: Math.max(1, Number(i.qty) || 1) }));
-      setCartItems(cleaned);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed
+            .filter((i) => i && typeof i === "object" && i.id)
+            .map((i) => ({ ...i, qty: Math.max(1, Number(i.qty) || 1) }));
+          setCartItems(cleaned);
+        }
+      }
     } catch {}
+    setCartHydrated(true);
   }, []);
 
   useEffect(() => {
+    if (!cartHydrated) return;
     try {
       localStorage.setItem("cartItems_v1", JSON.stringify(cartItems));
     } catch {}
-  }, [cartItems]);
+  }, [cartHydrated, cartItems]);
 
   const addToCart = (product) => {
     setCartItems((prev) => {
