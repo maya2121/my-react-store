@@ -49,14 +49,14 @@ body{
 }
 
 .nav-actions {
-    background:red;
+    background: #0d6efd;
     padding: 8px 15px;
     border-radius: 8px;
     cursor: pointer;
     transition: 0.3s;
 }
 .nav-actions:hover{
-    background:#ff4d4d;
+    background: #0b5ed7;
 }
 
 /* السلة الجانبية */
