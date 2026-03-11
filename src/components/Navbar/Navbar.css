@@ -214,6 +214,10 @@ body{
     display: block;
 }
 
+.collections.open .dropdown {
+    display: block;
+}
+
 .dropdown p {
     margin: 0;
     padding: 8px 15px;
