@@ -368,6 +368,9 @@ body{
     .collections.open .dropdown {
         display: block;
     }
+    .collections:hover .dropdown {
+        display: none;
+    }
     .menu-btn {
         display: inline-flex;
         align-items: center;
