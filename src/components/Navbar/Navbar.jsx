@@ -75,12 +75,20 @@ function Navbar({ cartItems, setCartItems }) {
           </span>
 
           <div className={`collections ${isCollectionsOpen ? "open" : ""}`} ref={collectionsRef}>
-            <span onClick={() => setIsCollectionsOpen((v) => !v)}>Collections ▾</span>
+            <button
+              type="button"
+              className="collections-trigger"
+              aria-expanded={isCollectionsOpen}
+              onClick={() => setIsCollectionsOpen((v) => !v)}
+            >
+              Collections ▾
+            </button>
             <div className="dropdown">
               {categories.map((cat) => (
                 <p 
                   key={cat.id} 
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     const section = document.getElementById(cat.slug);
                     if (section) {
                       section.scrollIntoView({ behavior: "smooth" });
