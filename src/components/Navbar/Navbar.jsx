@@ -101,7 +101,7 @@ function Navbar({ cartItems, setCartItems }) {
         <div className="nav-right">
           <button
             type="button"
-            className="menu-btn"
+            className={`menu-btn ${isMenuOpen ? "open" : ""}`}
             aria-label="Toggle menu"
             aria-expanded={isMenuOpen}
             onClick={() => setIsMenuOpen((v) => !v)}
