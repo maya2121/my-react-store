@@ -5,18 +5,21 @@ import "./Navbar.css";
 
 function Navbar({ cartItems, setCartItems }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]); // حالة لتخزين الأقسام
   const [isCollectionsOpen, setIsCollectionsOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const cartCount = Array.isArray(cartItems)
     ? cartItems.reduce((acc, item) => acc + (Number(item?.qty) || 0), 0)
     : 0;
   const collectionsRef = useRef(null);
+  const navRef = useRef(null);
 
   // جلب الأقسام من السيرفر
   useEffect(() => {
-    fetch("https://armanist.com/public/categories")        .then((res) => res.json())
+    const apiBase = import.meta.env.DEV ? "https://armanist.com" : window.location.origin;
+    fetch(`${apiBase}/public/categories`)
+      .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
         if (Array.isArray(data)) {
           setCategories(data);
@@ -27,35 +30,47 @@ function Navbar({ cartItems, setCartItems }) {
 
   useEffect(() => {
     const handleOutside = (e) => {
-      if (!isCollectionsOpen) return;
-      if (collectionsRef.current && !collectionsRef.current.contains(e.target)) {
+      if (isCollectionsOpen && collectionsRef.current && !collectionsRef.current.contains(e.target)) {
         setIsCollectionsOpen(false);
+      }
+      if (isMenuOpen && navRef.current && !navRef.current.contains(e.target)) {
+        setIsMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleOutside, true);
     return () => document.removeEventListener("mousedown", handleOutside, true);
-  }, [isCollectionsOpen]);
+  }, [isCollectionsOpen, isMenuOpen]);
+
+  useEffect(() => {
+    if (!isMenuOpen) setIsCollectionsOpen(false);
+  }, [isMenuOpen]);
+
+  const goHome = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setIsMenuOpen(false);
+    setIsCollectionsOpen(false);
+  };
+
+  const goProducts = () => {
+    const el = document.getElementById("products-section");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+    setIsMenuOpen(false);
+    setIsCollectionsOpen(false);
+  };
 
   return (
     <>
-      <nav className="navbar">
-      <div className="Logo">
-  <img src="/Images/logo4.png" alt="Logo" />
-</div>
+      <nav className="navbar" ref={navRef}>
+        <div className="Logo">
+          <img src="/Images/logo4.png" alt="Logo" />
+        </div>
 
-<div className="mobile-menu-btn" onClick={() => setMenuOpen(!menuOpen)}>
-  ☰
-</div>
-
-<div className={`nav-links ${menuOpen ? "active" : ""}`}>     
-      <span onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+        <div className={`nav-links ${isMenuOpen ? "open" : ""}`}>
+          <span onClick={goHome}>
             Home
           </span>
 
-          <span onClick={() => {
-            const el = document.getElementById("products-section");
-            if(el) el.scrollIntoView({ behavior: "smooth" });
-          }}>
+          <span onClick={goProducts}>
             Products
           </span>
 
@@ -73,6 +88,7 @@ function Navbar({ cartItems, setCartItems }) {
                       navigate(`/?category=${cat.slug}`);
                     }
                     setIsCollectionsOpen(false);
+                    setIsMenuOpen(false);
                   }}
                 >
                   {cat.name}
@@ -81,14 +97,23 @@ function Navbar({ cartItems, setCartItems }) {
             </div>
           </div>
         </div>
-        <div className="nav-actions" onClick={() => setIsCartOpen(true)}>
-  <i className="bi bi-cart"></i>
 
-  {cartCount > 0 && (
-    <span className="cart-count">{cartCount}</span>
-  )}
+        <div className="nav-right">
+          <button
+            type="button"
+            className="menu-btn"
+            aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}
+            onClick={() => setIsMenuOpen((v) => !v)}
+          >
+            <i className={`bi ${isMenuOpen ? "bi-x" : "bi-list"}`}></i>
+          </button>
 
-</div>
+          <button type="button" className="nav-actions" onClick={() => setIsCartOpen(true)} aria-label="Open cart">
+            <i className="bi bi-cart"></i>
+            {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
+          </button>
+        </div>
       </nav>
 
       <SideCart
