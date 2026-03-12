@@ -65,7 +65,7 @@ function Navbar({ cartItems, setCartItems }) {
           <img src="/Images/logo4.png" alt="Logo" />
         </div>
 
-        <div className={`nav-links ${isMenuOpen ? "open" : ""}`}>
+        <div className={`nav-links ${isMenuOpen ? "open active" : ""}`}>
           <span onClick={goHome}>
             Home
           </span>

@@ -308,6 +308,9 @@ body{
     .nav-links.open {
         display: flex;
     }
+    .nav-links.active {
+        display: flex;
+    }
     .nav-links span {
         padding: 12px 12px;
         border-radius: 12px;
