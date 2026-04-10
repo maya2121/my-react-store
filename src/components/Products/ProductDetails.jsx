@@ -8,6 +8,7 @@ function ProductDetails({ addToCart }) {
   const [product, setProduct] = useState(null);
   const [active, setActive] = useState(0);
   const [lang, setLang] = useState("en");
+  const [recent, setRecent] = useState([]);
   const baseUrl = "https://armanist.com";
 
   useEffect(() => {
@@ -22,6 +23,17 @@ function ProductDetails({ addToCart }) {
       }
     })();
   }, [id]);
+  useEffect(() => {
+    if (!product) return;
+  
+    let viewed = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
+  
+    viewed = viewed.filter(p => p.id !== product.id);
+    viewed.unshift(product);
+    viewed = viewed.slice(0, 5);
+  
+    localStorage.setItem("recentlyViewed", JSON.stringify(viewed));
+  }, [product]);
 
   
 
@@ -113,6 +125,24 @@ function ProductDetails({ addToCart }) {
           </div>
         </div>
       </div>
+      {recent.length > 0 && (
+  <div className="recently-viewed">
+    <h2>Recently Viewed</h2>
+
+    <div className="recent-grid">
+      {recent.map(item => (
+        <div 
+          key={item.id} 
+          className="recent-card"
+          onClick={() => navigate(`/product/${item.id}`)}
+        >
+          <img src={item.image} alt={item.name} />
+          <p>{item.name}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
     </div>
   );
 }

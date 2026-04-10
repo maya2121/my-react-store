@@ -141,3 +141,46 @@
   }
   
   }
+  /* ===============================
+   RECENTLY VIEWED
+================================ */
+
+.recently-viewed{
+  margin-top:40px;
+  }
+  
+  .recently-viewed h2{
+  margin-bottom:15px;
+  }
+  
+  .recent-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:15px;
+  }
+  
+  .recent-card{
+  background:#111;
+  padding:10px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:0.3s;
+  text-align:center;
+  }
+  
+  .recent-card:hover{
+  transform:scale(1.05);
+  }
+  
+  .recent-card img{
+  width:100%;
+  height:120px;
+  object-fit:cover;
+  border-radius:8px;
+  }
+  
+  .recent-card p{
+  font-size:13px;
+  margin-top:6px;
+  color:#fff;
+  }
