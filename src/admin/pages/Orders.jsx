@@ -33,8 +33,15 @@ const Orders = () => {
     return () => clearInterval(t);
   }, []);
 
-  const deleteOrder = (id) => {
-    setOrders(orders.filter(o => o.id !== id));
+  const deleteOrder = async (id) => {
+    try {
+      const res = await fetch(`${baseUrl}/orders/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: headersFor()
+      });
+      if (!res.ok) return;
+      setOrders(prev => prev.filter(o => o.id !== id));
+    } catch {}
   };
 
   return (

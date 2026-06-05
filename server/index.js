@@ -485,6 +485,21 @@ const saveOrderDev = async (order) => {
   } catch {}
 }
 
+const deleteOrderDev = async (id) => {
+  try {
+    const txt = await fs.readFile(ordersFile, 'utf8').catch(() => '[]')
+    const arr = JSON.parse(txt)
+    const items = Array.isArray(arr) ? arr : []
+    const before = items.length
+    const next = items.filter(o => String(o?.id) !== String(id))
+    if (next.length === before) return false
+    await fs.writeFile(ordersFile, JSON.stringify(next, null, 2))
+    return true
+  } catch {
+    return false
+  }
+}
+
 const sendOrderEmail = async (order) => {
   if (!mailer) return
   const itemsText = order.items.map(i => `- ${i.name} x${i.qty || 1} (${i.price})`).join('\n')
@@ -541,6 +556,23 @@ app.get('/orders', verifyToken, async (req, res) => {
     const snap = await store().collection('orders').get()
     const items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     res.json(items)
+  } catch (e) {
+    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
+  }
+})
+
+app.delete('/orders/:id', verifyToken, async (req, res) => {
+  const { id } = req.params
+  try {
+    if (allowDev) {
+      const removed = await deleteOrderDev(id)
+      if (!removed) return res.status(404).json({ error: 'not_found' })
+      broadcast({ type: 'order_deleted', id })
+      return res.status(204).end()
+    }
+    await store().collection('orders').doc(String(id)).delete()
+    broadcast({ type: 'order_deleted', id })
+    res.status(204).end()
   } catch (e) {
     res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
   }
