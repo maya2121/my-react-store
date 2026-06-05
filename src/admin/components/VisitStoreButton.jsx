@@ -4,8 +4,7 @@ import "../styles/admin.css";
 const VisitStoreButton = () => {
 
     const goToStore = () => {
-    window.open("http://localhost:5174", "_blank");
-    // غيّري الرابط لاحقاً للموقع الحقيقي
+    window.open(window.location.origin, "_blank", "noopener,noreferrer");
     };
 
 return (
