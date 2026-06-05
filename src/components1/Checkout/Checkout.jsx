@@ -125,11 +125,7 @@ function Checkout({ cartItems }) {
             <h4> Soft payment</h4>
 
             <label>
-              <input type="radio" name="pay" defaultChecked /> Credit card
-            </label>
-
-            <label>
-              <input type="radio" name="pay" /> Cash on delivery
+              <input type="radio" name="pay" checked readOnly /> Cash on delivery
             </label>
           </div>
         </div>
