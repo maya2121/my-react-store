@@ -54,7 +54,8 @@ function AppContent({ cartItems, setCartItems, addToCart }) {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/checkout" element={<Checkout cartItems={cartItems} />} />
-        <Route path="/track-order/:orderId" element={<TrackOrder />} />
+        <Route path="/track-order" element={<TrackOrder />} />
+<Route path="/track-order/:orderId" element={<TrackOrder />} />
 
         {/* صفحات الأدمن */}
         <Route path="/admin" element={<Dashboard />} />
