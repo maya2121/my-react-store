@@ -55,6 +55,7 @@ function AppContent({ cartItems, setCartItems, addToCart }) {
         <Route path="/register" element={<Register />} />
         <Route path="/checkout" element={<Checkout cartItems={cartItems} />} />
         <Route path="/track-order/:orderId" element={<TrackOrder />} />
+        
         {/* صفحات الأدمن */}
         <Route path="/admin" element={<Dashboard />} />
         <Route path="/admin/login" element={<AdminLogin />} />

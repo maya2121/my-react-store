@@ -10,6 +10,20 @@ function TracOrder() {
   const [timeLeft, setTimeLeft] = useState(12); 
   const [orderStatus, setOrderStatus] = useState("Driver is picking up your order");
   const [progress, setProgress] = useState(10); 
+  const [order, setOrder] = useState(null);
+
+useEffect(() => {
+  const fetchOrder = async () => {
+    const res = await fetch(`/api/orders/${orderId}`);
+    const data = await res.json();
+
+    setOrder(data);
+  };
+
+  if (orderId) {
+    fetchOrder();
+  }
+}, [orderId]);
 
   // محاكاة حية لتحرك السائق والوقت المتبقي
   useEffect(() => {
@@ -36,6 +50,14 @@ function TracOrder() {
 
     return () => clearInterval(interval);
   }, []);
+
+  if (loading) {
+    return <h2>Loading...</h2>;
+  }
+  
+  if (!order) {
+    return <h2>Order not found</h2>;
+  }
 
   return (
     <div className="track-wrapper">

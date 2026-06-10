@@ -560,7 +560,45 @@ app.get('/orders', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
   }
 })
+app.get('/orders/:id', async (req, res) => {
+  const { id } = req.params;
 
+  try {
+    if (allowDev) {
+      const txt = await fs.readFile(ordersFile, "utf8").catch(() => "[]");
+      const orders = JSON.parse(txt);
+
+      const order = orders.find(
+        (o) => String(o.id) === String(id)
+      );
+
+      if (!order) {
+        return res.status(404).json({ error: "not_found" });
+      }
+
+      return res.json(order);
+    }
+
+    const doc = await store()
+      .collection("orders")
+      .doc(String(id))
+      .get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: "not_found" });
+    }
+
+    res.json({
+      id: doc.id,
+      ...doc.data(),
+    });
+  } catch (e) {
+    res.status(500).json({
+      error: "server_error",
+      details: String(e?.message || e),
+    });
+  }
+});
 app.delete('/orders/:id', verifyToken, async (req, res) => {
   const { id } = req.params
   try {
