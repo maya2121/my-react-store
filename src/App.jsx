@@ -55,7 +55,7 @@ function AppContent({ cartItems, setCartItems, addToCart }) {
         <Route path="/register" element={<Register />} />
         <Route path="/checkout" element={<Checkout cartItems={cartItems} />} />
         <Route path="/track-order" element={<TrackOrder />} />
-<Route path="/track-order/:orderId" element={<TrackOrder />} />
+        <Route path="/track-order/:orderId" element={<TrackOrder />} />
 
         {/* صفحات الأدمن */}
         <Route path="/admin" element={<Dashboard />} />
@@ -66,6 +66,7 @@ function AppContent({ cartItems, setCartItems, addToCart }) {
         <Route path="/admin/orders" element={<Orders />} />
         <Route path="/admin/users" element={<Users />} />
         <Route path="/admin/analytics" element={<Analytics />} />
+
       </Routes>
 
       {/* عرض الفوتر فقط إذا لم نكن في صفحة المنتج أو الأدمن */}

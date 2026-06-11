@@ -11,19 +11,25 @@ function TracOrder() {
   const [orderStatus, setOrderStatus] = useState("Driver is picking up your order");
   const [progress, setProgress] = useState(10); 
   const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(false); // تم إضافة الـ loading هنا ليشتغل الكود بدون خطأ
 
-useEffect(() => {
-  const fetchOrder = async () => {
-    const res = await fetch(`/api/orders/${orderId}`);
-    const data = await res.json();
+  useEffect(() => {
+    const fetchOrder = async () => {
+      if (!orderId) return;
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/orders/${orderId}`);
+        const data = await res.json();
+        setOrder(data);
+      } catch (error) {
+        console.error("Error fetching order:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setOrder(data);
-  };
-
-  if (orderId) {
     fetchOrder();
-  }
-}, [orderId]);
+  }, [orderId]);
 
   // محاكاة حية لتحرك السائق والوقت المتبقي
   useEffect(() => {
@@ -52,11 +58,14 @@ useEffect(() => {
   }, []);
 
   if (loading) {
-    return <h2>Loading...</h2>;
+    return <h2 style={{ textAlign: "center", padding: "50px" }}>Loading...</h2>;
   }
   
-  if (!order) {
-    return <h2>Order not found</h2>;
+  // إذا لم يكن هناك orderId (زيارة الرابط العام) أو لم يجد الطلب بعد الفحص
+  if (!orderId) {
+    // سنعرض محاكاة افتراضية إذا دخل المستخدم بدون ID محدد حتى لا تظهر الصفحة فارغة
+  } else if (!order && !loading) {
+    return <h2 style={{ textAlign: "center", padding: "50px" }}>Order not found</h2>;
   }
 
   return (
@@ -111,7 +120,7 @@ useEffect(() => {
           </div>
 
           <div className="track-map-footer">
-            <p>The map updates instantly as the driver moves towards your delivery address.</p>
+          <p>The map updates instantly as the driver moves towards your delivery address.</p>
           </div>
         </div>
 
