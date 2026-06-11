@@ -16,8 +16,7 @@ import Orders from "./admin/pages/Orders.jsx";
 import Users from "./admin/pages/Users.jsx";
 import Analytics from "./admin/pages/Analytics.jsx";
 import AdminLogin from "./admin/pages/AdminLogin.jsx";
-import TrackOrder from "./components1/TracOrder/TracOrder.jsx"
-
+import TrackOrder from "./components1/TracOrder/TrackOrder.jsx";
 function AppContent({ cartItems, setCartItems, addToCart }) {
   const location = useLocation();
 
