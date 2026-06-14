@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import './TrackOrder.css';
-function TracOrder() {
+function TrackOrder() {
   const { orderId } = useParams();
   const navigate = useNavigate();
 
