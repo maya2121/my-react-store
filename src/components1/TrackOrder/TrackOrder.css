@@ -133,15 +133,12 @@
 
 /* تصميم خريطة مسار السائق التفاعلية */
 .track-map-box {
-  background-color: #ffffff;
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 400px;
-  box-sizing: border-box;
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  padding: 0;
+  min-height: 500px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
 }
 
 .track-map-header {

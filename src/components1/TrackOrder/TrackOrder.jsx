@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import './TrackOrder.css';
+import LiveMap from "./LiveMap";
+
 function TrackOrder() {
   const { orderId } = useParams();
   const navigate = useNavigate();
@@ -106,9 +108,7 @@ function TrackOrder() {
 
         {/* قسم الخريطة التفاعلية والمسار الذكي */}
         <div className="track-map-box">
-          <div className="track-map-header">
-            <span>📍 Store Location</span>
-            <span>🏠 Your Home</span>
+          <LiveMap />
           </div>
           
           {/* شريط تتبع المسار التفاعلي المطور */}
@@ -124,7 +124,6 @@ function TrackOrder() {
         </div>
 
       </div>
-    </div>
   );
 }
 
