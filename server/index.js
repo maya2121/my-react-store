@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url'
 import nodemailer from 'nodemailer'
 
 const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename) // تم إصلاحها هنا
+const __dirname = path.dirname(__filename) 
 dotenv.config({ path: path.join(__dirname, '.env') })
 
 const app = express()
@@ -177,31 +177,48 @@ if (allowDev) {
 await loadAdminUsers()
 await ensureAdminUsers()
 
-// ==========================================
-// 💡 إضافة راوت جلب بيانات الطلب التتبع المتوافق مع الفونتد
-// ==========================================
-app.get('/api/orders/:orderId', async (req, res) => {
-  const { orderId } = req.params;
-  
+      // ==========================================================
+// 💡 إضافة راوت جلب بيانات الطلب التتبع المتوافق مع الفرونت آند
+// ==========================================================
+app.get('/api/orders/:id', async (req, res) => {
+  const orderId = req.params.id;
+
+  // وضع التطوير السريع: إذا كنتِ تريدين تجربة الفرونت آند مباشرة ببيانات وهمية
+  const allowDev = true; // اجعليها false عندما تريدين القراءة من ملف JSON الحقيقي
+
   if (allowDev) {
-    // في بيئة التطوير، سنعيد بيانات طلب وهمي سريع لكي يشتغل التتبع
     return res.json({
       id: orderId,
+      status: "on_the_way",
+      customerLat: 33.5102, // موقع الزبون الافتراضي
+      customerLng: 36.2913,
+      driverLat: 33.5090,   // موقع السائق الافتراضي الذي يتحرك
+      driverLng: 36.2860,
       name: "Test User",
-      status: "pending",
-      total: 150
+      phone: "00000000",
+      address: "Damascus, Syria"
     });
   }
 
-  try {
-    const doc = await store().collection('orders').doc(orderId).get();
-    if (!doc.exists) {
-      return res.status(404).json({ error: 'order_not_found' });
+  // --- الكود الحقيقي للقراءة من ملف الـ JSON الفعلي ---
+  const fs = require('fs');
+  const path = require('path');
+  const filePath = path.join(__dirname, 'orders-dev.json');
+
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      return res.status(500).json({ error: "Failed to read orders file" });
     }
-    res.json({ id: doc.id, ...doc.data() });
-  } catch (e) {
-    res.status(500).json({ error: 'server_error', details: String(e.message) });
-  }
+
+    const orders = JSON.parse(data || '[]');
+    const order = orders.find(o => o.id === orderId);
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.json(order);
+  });
 });
 
 app.get('/products', verifyToken, async (req, res) => {

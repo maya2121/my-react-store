@@ -13,6 +13,9 @@ function Checkout({ cartItems = [] }) {
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("credit_card");
   const [loading, setLoading] = useState(false);
+  
+  // حالة تخزين موقع الزبون
+  const [customerLocation, setCustomerLocation] = useState(null);
 
   const baseUrl = "https://armanist.com";
 
@@ -44,6 +47,23 @@ function Checkout({ cartItems = [] }) {
       navigate("/login");
     }
   }, [navigate]);
+
+  // جلب موقع المستخدم الجغرافي عند تحميل الصفحة
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCustomerLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (error) => {
+        console.error("Location Error:", error);
+      }
+    );
+  }, []);
 
   // التحقق من صحة البيانات المدخلة
   const validateForm = () => {
@@ -84,7 +104,18 @@ function Checkout({ cartItems = [] }) {
           address,
           name,
           paymentMethod,
-          total: totalPrice
+          total: totalPrice,
+          
+          // إرسال إحداثيات موقع الزبون
+          customerLat: customerLocation?.lat || null,
+          customerLng: customerLocation?.lng || null,
+
+          // إرسال إحداثيات السائق المؤقتة (دمشق كمثال مبدئي)
+          driverLat: 33.5090,
+          driverLng: 36.2860,
+
+          // حالة الطلب لبدء التتبع فوراً
+          status: "on_the_way"
         })
       });
 
@@ -97,7 +128,7 @@ function Checkout({ cartItems = [] }) {
 
       alert("Order confirmed successfully!");
       
-      // هنا نقوم بتوجيهه لصفحة التتبع الجديدة ونرسل معها معرف الطلب القادم من السيرفر
+      // التوجيه لصفحة التتبع الجديدة مع معرف الطلب المرجع من السيرفر
       const orderId = data.orderId || "SAMPLE_ORDER_ID";
       navigate(`/track-order/${orderId}`);
 
@@ -113,14 +144,12 @@ function Checkout({ cartItems = [] }) {
     <div className="checkout-wrapper">
       <div className="checkout-content">
         
-        
         <div className="back-button-container">
-          <button onClick={() => navigate("/")} className="back-btn">
+        <button onClick={() => navigate("/")} className="back-btn">
             ← Back to Store
           </button>
         </div>
 
-        
         <div className="billing-section">
           <h3>Payment and Shipping Data</h3>
 
@@ -161,7 +190,6 @@ function Checkout({ cartItems = [] }) {
             />
           </div>
 
-          
           <div className="payment-methods">
             <h4>Payment Method</h4>
             <label className="radio-label">
@@ -187,7 +215,6 @@ function Checkout({ cartItems = [] }) {
           </div>
         </div>
 
-        
         <div className="summary-section">
           <h3>Request Summary</h3>
 

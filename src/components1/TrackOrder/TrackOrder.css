@@ -178,3 +178,29 @@
   font-size: 13px;
   margin-top: 20px;
 }
+.track-driver-stats {
+  margin-top: 6px;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.track-timeline {
+  margin: 20px 0;
+}
+
+.step {
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  background: #f5f5f5;
+}
+
+.step.active {
+  background: #dcfce7;
+}
+
+.step.current {
+  background: #dbeafe;
+  font-weight: bold;
+}
