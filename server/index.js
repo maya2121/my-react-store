@@ -184,7 +184,7 @@ app.get('/api/orders/:id', async (req, res) => {
   const orderId = req.params.id;
 
   // وضع التطوير السريع: إذا كنتِ تريدين تجربة الفرونت آند مباشرة ببيانات وهمية
-  const allowDev = true; // اجعليها false عندما تريدين القراءة من ملف JSON الحقيقي
+  const allowDev = false; // اجعليها false عندما تريدين القراءة من ملف JSON الحقيقي
 
   if (allowDev) {
     return res.json({
@@ -192,7 +192,7 @@ app.get('/api/orders/:id', async (req, res) => {
       status: "on_the_way",
       customerLat: 33.5102, // موقع الزبون الافتراضي
       customerLng: 36.2913,
-      driverLat: 33.5090,   // موقع السائق الافتراضي الذي يتحرك
+      driverLat: 33.5110,   // موقع السائق الافتراضي الذي يتحرك
       driverLng: 36.2860,
       name: "Test User",
       phone: "00000000",

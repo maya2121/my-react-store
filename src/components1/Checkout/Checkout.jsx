@@ -13,9 +13,6 @@ function Checkout({ cartItems = [] }) {
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("credit_card");
   const [loading, setLoading] = useState(false);
-  
-  // حالة تخزين موقع الزبون
-  const [customerLocation, setCustomerLocation] = useState(null);
 
   const baseUrl = "https://armanist.com";
 
@@ -48,23 +45,6 @@ function Checkout({ cartItems = [] }) {
     }
   }, [navigate]);
 
-  // جلب موقع المستخدم الجغرافي عند تحميل الصفحة
-  useEffect(() => {
-    if (!navigator.geolocation) return;
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setCustomerLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-      },
-      (error) => {
-        console.error("Location Error:", error);
-      }
-    );
-  }, []);
-
   // التحقق من صحة البيانات المدخلة
   const validateForm = () => {
     if (!name.trim()) {
@@ -89,12 +69,11 @@ function Checkout({ cartItems = [] }) {
   // إرسال الطلب إلى السيرفر
   const handleSubmit = async () => {
     if (!validateForm()) return;
-
     setLoading(true);
     try {
       const fullPhoneNumber = `${countryCodes[country]}${phone}`;
       
-      const res = await fetch(`${baseUrl}/orders`, {
+      const res = await fetch(`${baseUrl}`/orders, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -104,18 +83,7 @@ function Checkout({ cartItems = [] }) {
           address,
           name,
           paymentMethod,
-          total: totalPrice,
-          
-          // إرسال إحداثيات موقع الزبون
-          customerLat: customerLocation?.lat || null,
-          customerLng: customerLocation?.lng || null,
-
-          // إرسال إحداثيات السائق المؤقتة (دمشق كمثال مبدئي)
-          driverLat: 33.5090,
-          driverLng: 36.2860,
-
-          // حالة الطلب لبدء التتبع فوراً
-          status: "on_the_way"
+          total: totalPrice
         })
       });
 
@@ -128,9 +96,9 @@ function Checkout({ cartItems = [] }) {
 
       alert("Order confirmed successfully!");
       
-      // التوجيه لصفحة التتبع الجديدة مع معرف الطلب المرجع من السيرفر
+      // هنا نقوم بتوجيهه لصفحة التتبع الجديدة ونرسل معها معرف الطلب القادم من السيرفر
       const orderId = data.orderId || "SAMPLE_ORDER_ID";
-      navigate(`/track-order/${orderId}`);
+      navigate(/track-order/`${orderId}`);
 
     } catch (error) {
       console.error("Order Error:", error);
@@ -139,17 +107,18 @@ function Checkout({ cartItems = [] }) {
       setLoading(false);
     }
   };
-
   return (
     <div className="checkout-wrapper">
       <div className="checkout-content">
         
+        
         <div className="back-button-container">
-        <button onClick={() => navigate("/")} className="back-btn">
+          <button onClick={() => navigate("/")} className="back-btn">
             ← Back to Store
           </button>
         </div>
 
+        
         <div className="billing-section">
           <h3>Payment and Shipping Data</h3>
 
@@ -190,6 +159,7 @@ function Checkout({ cartItems = [] }) {
             />
           </div>
 
+          
           <div className="payment-methods">
             <h4>Payment Method</h4>
             <label className="radio-label">
@@ -215,6 +185,7 @@ function Checkout({ cartItems = [] }) {
           </div>
         </div>
 
+        
         <div className="summary-section">
           <h3>Request Summary</h3>
 
@@ -227,7 +198,7 @@ function Checkout({ cartItems = [] }) {
                   <span className="item-name">
                     {item.name} {Number(item.qty) > 1 ? x`${item.qty}` : ""}
                   </span>
-                  <span className="item-price">${Number(item.price).toFixed(2)}</span>
+                  <span className="item-price">`${Number(item.price).toFixed(2)}</span>
                 </div>
               ))
             )}
@@ -235,7 +206,7 @@ function Checkout({ cartItems = [] }) {
 
           <div className="total-row">
             <span>Total</span>
-            <span className="total-price">${totalPrice.toFixed(2)}</span>
+            <span className="total-price">`${totalPrice.toFixed(2)}`</span>
           </div>
 
           <button 
