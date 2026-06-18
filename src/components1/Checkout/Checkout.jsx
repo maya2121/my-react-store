@@ -71,43 +71,49 @@ function Checkout({ cartItems = [] }) {
 
   // إرسال الطلب إلى السيرفر
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true); // هنا يبدأ الـ Processing
+    if (e && e.preventDefault) e.preventDefault();
+    
+    // إذا كان يرسل بالفعل، لا تضغط مرتين
+    if (loading) return; 
+  
+    setLoading(true);
   
     try {
-      const response = await fetch(`${baseUrl}/orders`, { // تأكد من وجود baseUrl هنا
+      // التأكد من صياغة الرابط بشكل صحيح مع وضع الـ /
+      const response = await fetch(`${baseUrl}/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name,
-          phone,
-          country,
-          address,
-          paymentMethod,
+          name: name,
+          phone: phone,
+          country: country,
+          address: address,
+          paymentMethod: paymentMethod,
           items: cartItems,
           total: totalPrice,
         }),
       });
   
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
   
       if (response.ok) {
-        // تفريغ السلة وتوجيه العميل لصفحة النجاح
-        alert("Order Placed Successfully!");
-        // هنا يمكنك عمل navigate لصفحة النجاح أو تفريغ السلة
+        alert("🎉 تم تسجيل طلبك بنجاح! شكراً لك.");
+        // هنا يمكنك تفريغ السلة أو توجيه المستخدم لصفحة أخرى إذا أردت
+        // window.location.href = "/"; 
       } else {
-        alert("Failed to place order: " + data.error);
+        alert(`❌ فشل إرسال الطلب: ${data.error || 'خطأ غير معروف من السيرفر'}`);
       }
+  
     } catch (error) {
-      console.error("Error:", error);
-      alert("Something went wrong!");
+      console.error("Checkout Error:", error);
+      alert(`🌐 خطأ في الاتصال بالسيرفر: ${error.message}`);
     } finally {
-      setLoading(false); // 👈 هذا السطر السحري الذي ينهي الـ Processing ويعيد الزر لطبيعته إذا فشل أو نجح الطلب!
+      // هذا السطر يضمن عودة الزر لطبيعته دائماً مهما كانت النتيجة
+      setLoading(false); 
     }
   };
-  
   return (
     <div className="checkout-wrapper">
       <div className="checkout-content">
