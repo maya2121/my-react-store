@@ -15,7 +15,18 @@ const app = express()
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
-app.use(cors({ origin: ["https://armanist.com", "https://www.armanist.com", "http://localhost:5173"] })) // تم إضافة لوكال هوست للاختبار البسيط
+// إعداد الـ CORS ليتوافق مع الدومين والـ localhost بجميع الصيغ
+app.use(cors({ 
+  origin: [
+    "https://armanist.com", 
+    "https://www.armanist.com", 
+    "http://localhost:5173", 
+    "http://localhost:5174",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174"
+  ],
+  credentials: true
+}))
 
 let adminInitialized = false
 const allowDev = (process.env.ALLOW_DEV_UNAUTH || 'false').toLowerCase() === 'true'
@@ -29,6 +40,7 @@ const mailUser = process.env.MAIL_USER || ''
 const mailPass = process.env.MAIL_PASS || ''
 const mailFrom = process.env.MAIL_FROM || mailUser
 const mailTo = process.env.MAIL_TO || ''
+
 let memProducts = []
 const devFile = path.join(__dirname, 'products-dev.json')
 let memHeroSlides = []
@@ -37,7 +49,6 @@ let memCategories = []
 const categoriesFile = path.join(__dirname, 'categories-dev.json')
 let adminUsers = []
 const adminUsersFile = path.join(__dirname, 'admin-users.json')
-let sseClients = []
 const ordersFile = path.join(__dirname, 'orders-dev.json')
 
 const mailer = mailHost && mailUser && mailPass && mailTo
@@ -49,53 +60,32 @@ const mailer = mailHost && mailUser && mailPass && mailTo
     })
   : null
 
+// ==========================================================
+// 📁 دالات تحميل وحفظ ملفات التطوير المحلي (JSON)
+// ==========================================================
 const loadDevProducts = async () => {
-  try {
-    const txt = await fs.readFile(devFile, 'utf8')
-    const data = JSON.parse(txt)
-    if (Array.isArray(data)) memProducts = data
-  } catch {}
+  try { const txt = await fs.readFile(devFile, 'utf8'); memProducts = JSON.parse(txt); } catch {}
 }
 const saveDevProducts = async () => {
-  try {
-    await fs.writeFile(devFile, JSON.stringify(memProducts, null, 2))
-  } catch {}
+  try { await fs.writeFile(devFile, JSON.stringify(memProducts, null, 2)); } catch {}
 }
 const loadHeroSlides = async () => {
-  try {
-    const txt = await fs.readFile(heroFile, 'utf8')
-    const data = JSON.parse(txt)
-    if (Array.isArray(data)) memHeroSlides = data
-  } catch {}
+  try { const txt = await fs.readFile(heroFile, 'utf8'); memHeroSlides = JSON.parse(txt); } catch {}
 }
 const saveHeroSlides = async () => {
-  try {
-    await fs.writeFile(heroFile, JSON.stringify(memHeroSlides, null, 2))
-  } catch {}
+  try { await fs.writeFile(heroFile, JSON.stringify(memHeroSlides, null, 2)); } catch {}
 }
 const loadCategories = async () => {
-  try {
-    const txt = await fs.readFile(categoriesFile, 'utf8')
-    const data = JSON.parse(txt)
-    if (Array.isArray(data)) memCategories = data
-  } catch {}
+  try { const txt = await fs.readFile(categoriesFile, 'utf8'); memCategories = JSON.parse(txt); } catch {}
 }
 const saveCategories = async () => {
-  try {
-    await fs.writeFile(categoriesFile, JSON.stringify(memCategories, null, 2))
-  } catch {}
+  try { await fs.writeFile(categoriesFile, JSON.stringify(memCategories, null, 2)); } catch {}
 }
 const loadAdminUsers = async () => {
-  try {
-    const txt = await fs.readFile(adminUsersFile, 'utf8')
-    const data = JSON.parse(txt)
-    if (Array.isArray(data)) adminUsers = data
-  } catch {}
+  try { const txt = await fs.readFile(adminUsersFile, 'utf8'); adminUsers = JSON.parse(txt); } catch {}
 }
 const saveAdminUsers = async () => {
-  try {
-    await fs.writeFile(adminUsersFile, JSON.stringify(adminUsers, null, 2))
-  } catch {}
+  try { await fs.writeFile(adminUsersFile, JSON.stringify(adminUsers, null, 2)); } catch {}
 }
 
 const ensureAdminUsers = async () => {
@@ -110,6 +100,7 @@ const isAdminCredentials = (username, password) => {
   return adminUsers.some(u => u.username === username && u.password === password)
 }
 
+// تهيئة Firebase Admin
 try {
   const svc = process.env.FIREBASE_SERVICE_ACCOUNT ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT) : null
   if (svc) {
@@ -122,11 +113,15 @@ try {
   adminInitialized = false
 }
 
+// ==========================================================
+// 🛡️ دالة التحقق من الحماية (verifyToken)
+// ==========================================================
 const verifyToken = async (req, res, next) => {
   await loadAdminUsers()
   await ensureAdminUsers()
   const adminHeaderUser = req.headers['x-admin-user']
   const adminHeaderPass = req.headers['x-admin-pass']
+  
   if (isAdminCredentials(adminHeaderUser, adminHeaderPass)) {
     req.user = { uid: 'admin-user' }
     return next()
@@ -135,8 +130,10 @@ const verifyToken = async (req, res, next) => {
     req.user = { uid: 'dev-user' }
     return next()
   }
+  
   const authHeader = req.headers.authorization || ''
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null
+  
   if (!token || !adminInitialized) {
     return res.status(401).json({ error: 'unauthorized' })
   }
@@ -149,6 +146,53 @@ const verifyToken = async (req, res, next) => {
   }
 }
 
+// ==========================================================
+// 🛒 دالات إدارة ومعالجة الطلبات وإرسال الإيميلات
+// ==========================================================
+const saveOrderDev = async (order) => {
+  try {
+    const txt = await fs.readFile(ordersFile, 'utf8').catch(() => '[]')
+    const arr = JSON.parse(txt)
+    const items = Array.isArray(arr) ? arr : []
+    items.push(order)
+    await fs.writeFile(ordersFile, JSON.stringify(items, null, 2))
+  } catch {}
+}
+
+const sendOrderEmail = async (order) => {
+  if (!mailer) return
+  try {
+    const itemsText = order.items.map(i => `- ${i.name} x${i.qty || 1} (${i.price})`).join('\n')
+    const text = `New order ${order.id}\nName: ${order.name}\nPhone: ${order.phone}\nAddress: ${order.address}\nCountry: ${order.country}\nTotal: ${order.total}\nItems:\n${itemsText}`
+    
+    const htmlItems = order.items.map(i => `<li>${i.name} x${i.qty || 1} (${i.price})</li>`).join('')
+    const html = `<h3>New order ${order.id}</h3><p>Name: ${order.name}</p><p>Phone: ${order.phone}</p><p>Address: ${order.address}</p><p>Country: ${order.country}</p><p>Total: ${order.total}</p><ul>${htmlItems}</ul>`
+    
+    await mailer.sendMail({
+      from: mailFrom,
+      to: mailTo,
+      subject: `New order ${order.id}`,
+      text,
+      html
+    })
+  } catch (err) {
+    console.error("Email send error:", err)
+  }
+}
+
+// تهيئة الملفات في وضع التطوير المحلي
+const store = () => admin.firestore()
+if (allowDev) {
+  await loadDevProducts()
+  await loadHeroSlides()
+  await loadCategories()
+}
+await loadAdminUsers()
+await ensureAdminUsers()
+
+// ==========================================================
+// 🛣️ راوتس الـ Auth والـ Health الأساسية
+// ==========================================================
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', adminInitialized, allowDev })
 })
@@ -168,506 +212,112 @@ app.post('/admin-login', async (req, res) => {
   res.json({ ok: true })
 })
 
-const store = () => admin.firestore()
-if (allowDev) {
-  await loadDevProducts()
-  await loadHeroSlides()
-  await loadCategories()
-}
-await loadAdminUsers()
-await ensureAdminUsers()
-
-      // ==========================================================
-// 💡 إضافة راوت جلب بيانات الطلب التتبع المتوافق مع الفرونت آند
 // ==========================================================
-app.get('/api/orders/:id', async (req, res) => {
-  const orderId = req.params.id;
-
-  // وضع التطوير السريع: إذا كنتِ تريدين تجربة الفرونت آند مباشرة ببيانات وهمية
-  const allowDev = false; // اجعليها false عندما تريدين القراءة من ملف JSON الحقيقي
-
-  if (allowDev) {
-    return res.json({
-      id: orderId,
-      status: "on_the_way",
-      customerLat: 33.5102, // موقع الزبون الافتراضي
-      customerLng: 36.2913,
-      driverLat: 33.5110,   // موقع السائق الافتراضي الذي يتحرك
-      driverLng: 36.2860,
-      name: "Test User",
-      phone: "00000000",
-      address: "Damascus, Syria"
-    });
-  }
-
-  // --- الكود الحقيقي للقراءة من ملف الـ JSON الفعلي ---
-  const fs = require('fs');
-  const path = require('path');
-  const filePath = path.join(__dirname, 'orders-dev.json');
-
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      return res.status(500).json({ error: "Failed to read orders file" });
+// ✨ راوتس استقبال وحفظ الطلبات
+// ==========================================================
+const handlePlaceOrder = async (req, res) => {
+  try {
+    const { items, phone, country, address, name, paymentMethod, total } = req.body || {}
+    
+    const newOrder = {
+      id: "ORD-" + Date.now(),
+      items: Array.isArray(items) ? items : [],
+      phone,
+      country,
+      address,
+      name,
+      paymentMethod: paymentMethod || "cod",
+      total,
+      status: "pending",createdAt: new Date().toISOString()
     }
 
-    const orders = JSON.parse(data || '[]');
-    const order = orders.find(o => o.id === orderId);
+    await saveOrderDev(newOrder)
+    await sendOrderEmail(newOrder)
 
-    if (!order) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-
-    res.json(order);
-  });
-});
-
-app.get('/products', verifyToken, async (req, res) => {
-  if (allowDev) {
-    const items = memProducts.map(p => ({ ...p, category: p.category || 'Watches' }))
-    return res.json(items)
-  }
-  try {
-    const snap = await store().collection('products').get()
-    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(items)
-  } catch (e) {
-    console.error('GET /products error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
-})
-
-app.get('/public/products', async (req, res) => {
-  try {
-    if (allowDev) {
-      const items = memProducts.map(p => ({ ...p, category: p.category || 'Watches' }))
-      return res.json(items)
-    }
-    const snap = await store().collection('products').get()
-    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(items)
-  } catch (e) {
-    console.error('GET /public/products error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
-})
-
-app.get('/public/hero-slides', async (req, res) => {
-  try {
-    if (allowDev) {
-      const items = memHeroSlides
-        .slice()
-        .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
-      return res.json(items)
-    }
-    const snap = await store().collection('heroSlides').orderBy('order', 'asc').get()
-    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(items)
-  } catch (e) {
-    console.error('GET /public/hero-slides error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
-})
-
-app.get('/public/categories', async (req, res) => {
-  try {
-    if (allowDev) {
-      return res.json(memCategories)
-    }
-    const snap = await store().collection('categories').get()
-    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(items)
-  } catch (e) {
-    console.error('GET /public/categories error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
-})
-
-app.get('/categories', verifyToken, async (req, res) => {
-  try {
-    if (allowDev) {
-      return res.json(memCategories)
-    }
-    const snap = await store().collection('categories').get()
-    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(items)
-  } catch (e) {
-    console.error('GET /categories error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
-})
-
-app.post('/categories', verifyToken, async (req, res) => {
-  const { name, slug } = req.body || {}
-  if (!name) return res.status(400).json({ error: 'name_required' })
-  const item = {
-    id: allowDev ? String(Date.now()) : undefined,
-    name,
-    slug: slug || String(name).toLowerCase().replace(/\s+/g, '-')
-  }
-  try {
-    if (allowDev) {
-      memCategories.push(item)
-      await saveCategories()
-      return res.status(201).json(item)
-    }
-    const doc = await store().collection('categories').add(item)
-    const snap = await doc.get()
-    res.status(201).json({ id: doc.id, ...snap.data() })
-  } catch (e) {
-    console.error('POST /categories error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
-})
-
-app.put('/categories/:id', verifyToken, async (req, res) => {
-  const { id } = req.params
-  const { name, slug } = req.body || {}
-  try {
-    if (allowDev) {
-      const idx = memCategories.findIndex(c => c.id === id)
-      if (idx === -1) return res.status(404).json({ error: 'not_found' })
-      memCategories[idx] = {
-        ...memCategories[idx],
-        ...(name ? { name } : {}),
-        ...(slug ? { slug } : {})
-      }
-      await saveCategories()
-      return res.json(memCategories[idx])
-    }
-    await store().collection('categories').doc(id).set({ ...(name ? { name } : {}), ...(slug ? { slug } : {}) }, { merge: true })
-    const snap = await store().collection('categories').doc(id).get()
-    if (!snap.exists) return res.status(404).json({ error: 'not_found' })
-    res.json({ id, ...snap.data() })
-  } catch (e) {
-    console.error('PUT /categories error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
-})
-
-app.delete('/categories/:id', verifyToken, async (req, res) => {
-  const { id } = req.params
-  try {
-    if (allowDev) {
-      const before = memCategories.length
-      memCategories = memCategories.filter(c => c.id !== id)
-      if (memCategories.length === before) return res.status(404).json({ error: 'not_found' })
-      await saveCategories()
-      return res.status(204).end()
-    }
-    await store().collection('categories').doc(id).delete()
-    res.status(204).end()
-  } catch (e) {
-    console.error('DELETE /categories error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
-})
-
-app.get('/hero-slides', verifyToken, async (req, res) => {
-  try {
-    if (allowDev) {
-      const items = memHeroSlides
-        .slice()
-        .sort((a, b) => (Number(a.order) || 0))
-      return res.json(items)
-    }
-    const snap = await store().collection('heroSlides').orderBy('order', 'asc').get()
-    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(items)
-  } catch (e) {
-    console.error('GET /hero-slides error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
-})
-
-app.post('/hero-slides', verifyToken, async (req, res) => {
-  const { title, subtitle, buttonText, buttonLink, image, order } = req.body || {}
-  if (!image) return res.status(400).json({ error: 'image_required' })
-  if (allowDev) {
-    const item = {
-      id: String(Date.now()),title: title || '',
-      subtitle: subtitle || '',
-      buttonText: buttonText || 'Shop Now',
-      buttonLink: buttonLink || '#products-section',
-      image,
-      order: Number(order) || 0,
-      createdAt: Date.now()
-    }
-    memHeroSlides.push(item)
-    await saveHeroSlides()
-    return res.status(201).json(item)
-  }
-  try {
-    const doc = await store().collection('heroSlides').add({
-      title: title || '',
-      subtitle: subtitle || '',
-      buttonText: buttonText || 'Shop Now',
-      buttonLink: buttonLink || '#products-section',
-      image,
-      order: Number(order) || 0,
-      createdAt: Date.now()
-    })
-    const snap = await doc.get()
-    res.status(201).json({ id: doc.id, ...snap.data() })
-  } catch (e) {
-    console.error('POST /hero-slides error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
-})
-
-app.put('/hero-slides/:id', verifyToken, async (req, res) => {
-  const { id } = req.params
-  const data = req.body || {}
-  if (allowDev) {
-    const idx = memHeroSlides.findIndex(s => s.id === id)
-    if (idx === -1) return res.status(404).json({ error: 'not_found' })
-    memHeroSlides[idx] = { ...memHeroSlides[idx], ...data }
-    await saveHeroSlides()
-    return res.json(memHeroSlides[idx])
-  }
-  try {
-    await store().collection('heroSlides').doc(id).set(data, { merge: true })
-    const snap = await store().collection('heroSlides').doc(id).get()
-    if (!snap.exists) return res.status(404).json({ error: 'not_found' })
-    res.json({ id, ...snap.data() })
-  } catch (e) {
-    console.error('PUT /hero-slides error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
-})
-
-app.delete('/hero-slides/:id', verifyToken, async (req, res) => {
-  const { id } = req.params
-  if (allowDev) {
-    const before = memHeroSlides.length
-    memHeroSlides = memHeroSlides.filter(s => s.id !== id)
-    if (memHeroSlides.length === before) return res.status(404).json({ error: 'not_found' })
-    await saveHeroSlides()
-    return res.status(204).end()
-  }
-  try {
-    await store().collection('heroSlides').doc(id).delete()
-    res.status(204).end()
-  } catch (e) {
-    console.error('DELETE /hero-slides error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
-})
-
-app.get('/admin-users', verifyToken, (req, res) => {
-  res.json(adminUsers.map(u => ({ id: u.id, username: u.username })))
-})
-
-app.post('/admin-users', verifyToken, async (req, res) => {
-  const { username, password } = req.body || {}
-  if (!username || !password) return res.status(400).json({ error: 'username_password_required' })
-  if (adminUsers.some(u => u.username === username)) {
-    return res.status(409).json({ error: 'username_exists' })
-  }
-  const item = { id: String(Date.now()), username, password }
-  adminUsers.push(item)
-  await saveAdminUsers()
-  res.status(201).json({ id: item.id, username: item.username })
-})
-
-app.put('/admin-users/:id', verifyToken, async (req, res) => {
-  const { id } = req.params
-  const { username, password } = req.body || {}
-  const idx = adminUsers.findIndex(u => u.id === id)
-  if (idx === -1) return res.status(404).json({ error: 'not_found' })
-  if (username && adminUsers.some(u => u.username === username && u.id !== id)) {
-    return res.status(409).json({ error: 'username_exists' })
-  }
-  if (username) adminUsers[idx].username = username
-  if (password) adminUsers[idx].password = password
-  await saveAdminUsers()
-  res.json({ id: adminUsers[idx].id, username: adminUsers[idx].username })
-})
-
-app.delete('/admin-users/:id', verifyToken, async (req, res) => {
-  if (adminUsers.length <= 1) return res.status(400).json({ error: 'last_admin' })
-  const { id } = req.params
-  const before = adminUsers.length
-  adminUsers = adminUsers.filter(u => u.id !== id)
-  if (adminUsers.length === before) return res.status(404).json({ error: 'not_found' })
-  await saveAdminUsers()
-  res.status(204).end()
-})
-
-app.get('/admin/notifications/stream', async (req, res) => {
-  `await loadAdminUsers()await ensureAdminUsers()`
-  const qUser = req.query.u || req.headers['x-admin-user']
-  const qPass = req.query.p || req.headers['x-admin-pass']
-  if (!allowDev && !isAdminCredentials(qUser, qPass)) {
-    return res.status(401).json({ error: 'unauthorized' })
-  }
-  res.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    Connection: 'keep-alive',
-    'Access-Control-Allow-Origin': '*'
-  })
-  const client = res
-  sseClients.push(client)
-  req.on('close', () => {
-    sseClients = sseClients.filter(c => c !== client)
-  })
-})
-
-const broadcast = (event) => {
-  const payload = `data: ${JSON.stringify(event)}\n\n`
-  sseClients.forEach(c => {
-    try { c.write(payload) } catch {}
-  })
-}
-
-const saveOrderDev = async (order) => {
-  try {
-    const txt = await fs.readFile(ordersFile, 'utf8').catch(() => '[]')
-    const arr = JSON.parse(txt)
-    arr.push(order)
-    await fs.writeFile(ordersFile, JSON.stringify(arr, null, 2))
-  } catch {}
-}
-
-const deleteOrderDev = async (id) => {
-  try {
-    const txt = await fs.readFile(ordersFile, 'utf8').catch(() => '[]')
-    const arr = JSON.parse(txt)
-    const items = Array.isArray(arr) ? arr : []
-    const before = items.length
-    const next = items.filter(o => String(o?.id) !== String(id))
-    if (next.length === before) return false
-    await fs.writeFile(ordersFile, JSON.stringify(next, null, 2))
-    return true
-  } catch {
-    return false
+    res.status(201).json({ ok: true, order: newOrder })
+  } catch (error) {
+    console.error("Order processing error:", error)
+    res.status(500).json({ error: "failed_to_place_order", details: String(error.message) })
   }
 }
 
-const sendOrderEmail = async (order) => {
-  if (!mailer) return
-  const itemsText = order.items.map(i => `- ${i.name} x${i.qty || 1} (${i.price})`).join('\n')
-  const text = `New order ${order.id}\nName: ${order.name}\nPhone: ${order.phone}\nAddress: ${order.address}\nCountry: ${order.country}\nTotal: ${order.total}\nItems:\n${itemsText}`
-  const htmlItems = order.items.map(i => `<li>${i.name} x${i.qty || 1} (${i.price})</li>`).join('')
-  const html = `<h3>New order ${order.id}</h3><p>Name: ${order.name}</p><p>Phone: ${order.phone}</p><p>Address: ${order.address}</p><p>Country: ${order.country}</p><p>Total: ${order.total}</p><ul>${htmlItems}</ul>`
-  try {
-    await mailer.sendMail({
-      from: mailFrom,
-      to: mailTo,
-      subject: `New order ${order.id}`,
-      text,
-      html
-    })
-  } catch {}
-}
+app.post('/api/orders', handlePlaceOrder)
+app.post('/orders', handlePlaceOrder)
+
+// ==========================================================
+// 🖼️ راوت رفع الصور (مُعدل ومؤمن لـ Cloudinary بدون FormData متصفح)
+// ==========================================================
 app.post('/upload-image', verifyToken, async (req, res) => {
   const { dataUrl } = req.body || {}
-
   if (!dataUrl || !dataUrl.startsWith('data:')) {
     return res.status(400).json({ error: 'invalid_image' })
   }
 
   try {
     if (cloudinaryName && cloudinaryPreset) {
-      const formData = new FormData()
-
-      formData.append('file', dataUrl)
-      formData.append('upload_preset', cloudinaryPreset)
-
-      const resp = await fetch(
-          ` https://api.cloudinary.com/v1_1/${cloudinaryName}`/image/upload,
-        {
-          method: 'POST',
-          body: formData
-        }
-      )
-
-      const payload = await resp.json()
-
-      if (resp.ok) {
-        return res.status(201).json({
-          url: payload.secure_url
-        })
-      }
+      // تعديل هندسي: رفع مباشر متوافق مع Node.js بدون استخدام FormData المتصفح المكسورة
+      const resCloud = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryName}/image/upload`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file: dataUrl, upload_preset: cloudinaryPreset })
+      })
+      const payload = await resCloud.json()
+      if (resCloud.ok) return res.status(201).json({ url: payload.secure_url })
     }
 
-    if (!adminInitialized) {
-      return res.status(503).json({
-        error: 'storage_not_configured'
-      })
-    }
+    if (!adminInitialized) return res.status(503).json({ error: 'storage_not_configured' })
 
-    try {
-      const match = `/^data:(.+?);base64,(.+)$/.exec(dataUrl)`
+    const match = `/^data:(.+?);base64,(.+)$/.exec(dataUrl)`
+    if (!match) return res.status(400).json({ error: 'invalid_image' })
 
-      if (!match) {
-        return res.status(400).json({
-          error: 'invalid_image'
-        })
-      }
+    const contentType = match[1]
+    const buffer = Buffer.from(match[2], 'base64')
+    const bucket = process.env.FIREBASE_STORAGE_BUCKET ? admin.storage().bucket(process.env.FIREBASE_STORAGE_BUCKET) : admin.storage().bucket()
+    const filename = products/`${Date.now()}-${Math.random().toString(36).slice(2)}`
+    const file = bucket.file(filename)
 
-      const contentType = match[1]
-      const buffer = Buffer.from(match[2], 'base64')
+    await file.save(buffer, { contentType, resumable: false })
+    await file.makePublic()
 
-      const bucketName = process.env.FIREBASE_STORAGE_BUCKET
-
-      const bucket = bucketName
-        ? admin.storage().bucket(bucketName)
-        : admin.storage().bucket()
-
-      const filename = `products/${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}`
-
-      const file = bucket.file(filename)
-
-      await file.save(buffer, {
-        contentType,
-        resumable: false
-      })
-
-      await file.makePublic()
-
-      const publicUrl =
-        ` https://storage.googleapis.com/${bucket.name}/${filename}`
-
-      return res.status(201).json({
-        url: publicUrl
-      })
-    } catch (e) {
-      console.error('POST /upload-image error:', e)
-
-      return res.status(500).json({
-        error: 'upload_failed',
-        details: String(e?.message || e)
-      })
-    }
+    return res.status(201).json({ url: `https://storage.googleapis.com/${bucket.name}/${filename}` })
   } catch (e) {
     console.error('POST /upload-image error:', e)
-
-    return res.status(500).json({
-      error: 'upload_failed',
-      details: String(e?.message || e)
-    })
+    res.status(500).json({ error: 'upload_failed', details: String(e?.message || e) })
   }
+})
+
+// ==========================================================
+// 📦 راوتس إدارة وعرض المنتجات (Products)
+// ==========================================================
+app.get('/products', verifyToken, async (req, res) => {
+  if (allowDev) return res.json(memProducts.map(p => ({ ...p, category: p.category || 'Watches' })))
+  try {
+    const snap = await store().collection('products').get()
+    res.json(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
+})
+
+app.get('/public/products', async (req, res) => {
+  try {
+    if (allowDev) return res.json(memProducts.map(p => ({ ...p, category: p.category || 'Watches' })))
+    const snap = await store().collection('products').get()
+    res.json(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
 })
 
 app.post('/products', verifyToken, async (req, res) => {
   const { name, price, image, description, descriptionAr, descriptionEn, category, salePrice, discountPercent, images } = req.body || {}
   if (!name) return res.status(400).json({ error: 'name_required' })
+  
   if (allowDev) {
-    const id = String(Date.now())
-    const item = { id, name, price, image, description, descriptionAr, descriptionEn, category: category || 'Watches', salePrice, discountPercent, images: Array.isArray(images) ? images : [] }
-    memProducts.push(item)
-    await saveDevProducts()
-    return res.status(201).json(item)
+    const item = { id: String(Date.now()), name, price, image, description, descriptionAr, descriptionEn, category: category || 'Watches', salePrice, discountPercent, images: Array.isArray(images) ? images : [] }
+    memProducts.push(item); await saveDevProducts(); return res.status(201).json(item)
   }
   try {
     const doc = await store().collection('products').add({ name, price, image, description, descriptionAr, descriptionEn, category, salePrice, discountPercent, images: Array.isArray(images) ? images : [] })
     const snap = await doc.get()
     res.status(201).json({ id: doc.id, ...snap.data() })
   } catch (e) {
-    console.error('POST /products error:', e)
     res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
   }
 })
@@ -676,79 +326,162 @@ app.put('/products/discount-all', verifyToken, async (req, res) => {
   const { salePrice, discountPercent } = req.body || {}
   if (allowDev) {
     memProducts = memProducts.map(p => ({ ...p, salePrice, discountPercent }))
-    await saveDevProducts()
-    return res.json({ count: memProducts.length })
+    await saveDevProducts(); return res.json({ count: memProducts.length })
   }
   try {
     const snap = await store().collection('products').get()
     const batch = store().batch()
-    snap.docs.forEach(doc => {
-      batch.set(doc.ref, { salePrice, discountPercent }, { merge: true })
-    })
-    await batch.commit()
-    res.json({ count: snap.size })
-  } catch (e) {
-    console.error('PUT /products/discount-all error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
+    snap.docs.forEach(doc => { batch.set(doc.ref, { salePrice, discountPercent }, { merge: true }) })
+    await batch.commit(); res.json({ count: snap.size })
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
 })
 
 app.put('/products/:id', verifyToken, async (req, res) => {
-  const { id } = req.params
-  const data = req.body || {}
+  const { id } = req.params; const data = req.body || {}
   if (allowDev) {
     const idx = memProducts.findIndex(p => p.id === id)
     if (idx === -1) return res.status(404).json({ error: 'not_found' })
-    if (Array.isArray(data.images)) {
-      memProducts[idx] = { ...memProducts[idx], ...data, images: data.images }
-    } else {
-      memProducts[idx] = { ...memProducts[idx], ...data }
-    }
-    await saveDevProducts()
-    return res.json(memProducts[idx])
+    memProducts[idx] = { ...memProducts[idx], ...data, images: Array.isArray(data.images) ? data.images : memProducts[idx].images || [] }
+    await saveDevProducts(); return res.json(memProducts[idx])
   }
   try {
-    if (Array.isArray(data.images)) {
-      await store().collection('products').doc(id).set({ ...data, images: data.images }, { merge: true })
-    } else {
-      await store().collection('products').doc(id).set(data, { merge: true })
-    }
+    await store().collection('products').doc(id).set(data, { merge: true })
     const snap = await store().collection('products').doc(id).get()
-    if (!snap.exists) return res.status(404).json({ error: 'not_found' })
     res.json({ id, ...snap.data() })
-  } catch (e) {
-    console.error('PUT /products error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
 })
 
 app.delete('/products/:id', verifyToken, async (req, res) => {
   const { id } = req.params
   if (allowDev) {
-    memProducts = memProducts.filter(p => p.id !== id)
-    await saveDevProducts()
-    return res.status(204).end()
+    memProducts = memProducts.filter(p => p.id !== id); await saveDevProducts(); return res.status(204).end()
   }
   try {
-    await store().collection('products').doc(id).delete()
-    res.status(204).end()
-  } catch (e) {
-    console.error('DELETE /products error:', e)
-    res.status(500).json({ error: 'server_error', details: String(e?.message || e) })
-  }
+    await store().collection('products').doc(id).delete(); res.status(204).end()
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
 })
 
-app.use(
-  express.static(path.join(__dirname, "../dist"), {
-    setHeaders(res, filePath) {
-      if (filePath.endsWith('index.html')) {
-        res.setHeader('Cache-Control', 'no-store')
-      } else if (filePath.includes(`${path.sep}assets${path.sep}`)) {
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
-      }
+// ==========================================================
+// 📂 راوتس التصنيفات والـ Hero Slides
+// ==========================================================
+app.get('/public/hero-slides', async (req, res) => {
+  try {
+    if (allowDev) return res.json(memHeroSlides)
+    const snap = await store().collection('heroSlides').orderBy('order', 'asc').get()
+    res.json(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
+})
+
+app.get('/hero-slides', verifyToken, async (req, res) => {
+  try {
+    if (allowDev) return res.json(memHeroSlides)
+    const snap = await store().collection('heroSlides').orderBy('order', 'asc').get()
+    res.json(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
+})
+
+app.post('/hero-slides', verifyToken, async (req, res) => {
+  const { title, subtitle, buttonText, buttonLink, image, order } = req.body || {}
+  if (!image) return res.status(400).json({ error: 'image_required' })
+  if (allowDev) {
+    const item = { id: String(Date.now()), title: title || '', buttonText: buttonText || '#products-section', image, order: Number(order) || 0, createdAt: Date.now() }
+    memHeroSlides.push(item); await saveHeroSlides(); return res.status(201).json(item)
+  }
+  try {
+    const doc = await store().collection('heroSlides').add({ title: title || '', buttonText: buttonText || '#products-section', image, order: Number(order) || 0, createdAt: Date.now() })
+    const snap = await doc.get(); res.status(201).json({ id: doc.id, ...snap.data() })
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
+})
+
+app.put('/hero-slides/:id', verifyToken, async (req, res) => {
+  const { id } = req.params; const data = req.body || {}
+  if (allowDev) {
+    const idx = memHeroSlides.findIndex(s => s.id === id); if (idx === -1) return res.status(404).json({ error: 'not_found' })
+    memHeroSlides[idx] = { ...memHeroSlides[idx], ...data }; await saveHeroSlides(); return res.json(memHeroSlides[idx])
+  }
+  try {
+    await store().collection('heroSlides').doc(id).set(data, { merge: true })
+    const snap = await store().collection('heroSlides').doc(id).get(); res.json({ id, ...snap.data() })
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
+})
+
+app.delete('/hero-slides/:id', verifyToken, async (req, res) => {
+  const { id } = req.params
+  if (allowDev) {
+    memHeroSlides = memHeroSlides.filter(s => s.id !== id); await saveHeroSlides(); return res.status(204).end()
+  }
+  try { await store().collection('heroSlides').doc(id).delete(); res.status(204).end() } catch (e) { res.status(500).json({ error: 'server_error' }) }
+})
+
+app.get('/public/categories', async (req, res) => {
+  try {
+    if (allowDev) return res.json(memCategories)
+    const snap = await store().collection('categories').get()
+    res.json(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
+})
+
+app.get('/categories', verifyToken, async (req, res) => {
+  try {
+    if (allowDev) return res.json(memCategories)
+    const snap = await store().collection('categories').get()
+    res.json(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
+})
+
+app.post('/categories', verifyToken, async (req, res) => {
+  const { name, slug } = req.body || {}
+  if (!name) return res.status(400).json({ error: 'name_required' })
+  const item = { id: allowDev ? String(Date.now()) : undefined, name, slug: slug || String(name).toLowerCase().replace(/\s+/g, '-') }
+  try {
+    if (allowDev) { memCategories.push(item); await saveCategories(); return res.status(201).json(item); }
+    const doc = await store().collection('categories').add(item)
+    const snap = await doc.get()
+    res.status(201).json({ id: doc.id, ...snap.data() })
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
+})
+
+app.put('/categories/:id', verifyToken, async (req, res) => {
+  const { id } = req.params; const { name, slug } = req.body || {}
+  try {
+    if (allowDev) {
+      const idx = memCategories.findIndex(c => c.id === id); if (idx === -1) return res.status(404).json({ error: 'not_found' })
+      memCategories[idx] = { ...memCategories[idx], ...(name ? { name } : {}), ...(slug ? { slug } : {}) }
+      await saveCategories(); return res.json(memCategories[idx])
     }
-  })
-)
+    await store().collection('categories').doc(id).set({ ...(name ? { name } : {}), ...(slug ? { slug } : {}) }, { merge: true })
+    const snap = await store().collection('categories').doc(id).get()
+    res.json({ id, ...snap.data() })
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
+})
+
+app.delete('/categories/:id', verifyToken, async (req, res) => {
+  const { id } = req.params
+  try {
+    if (allowDev) {
+      memCategories = memCategories.filter(c => c.id !== id); await saveCategories(); return res.status(204).end()
+    }
+    await store().collection('categories').doc(id).delete()
+    res.status(204).end()
+  } catch (e) { res.status(500).json({ error: 'server_error' }) }
+})
+
+app.get('/admin-users', verifyToken, (req, res) => {
+  res.json(adminUsers)
+})
+
+// ==========================================================
+// 🚀 تقديم ملفات الـ React Frontend (dist)
+// ==========================================================
+app.use(express.static(path.join(__dirname, "../dist"), {
+  setHeaders(res, filePath) {
+    if (filePath.endsWith('index.html')) {
+      res.setHeader('Cache-Control', 'no-store')
+    } else if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+    }
+  }
+}))
 
 app.get("*", (req, res) => {
   res.setHeader('Cache-Control', 'no-store')
