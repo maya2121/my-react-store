@@ -177,7 +177,7 @@ function Checkout({ cartItems = [] }) {
               cartItems.map(item => (
                 <div key={item.id} className="item-row">
                   <span className="item-name">
-                    {item.name} {Number(item.qty) > 1 ? x`${item.qty}` : ""}
+                    {item.name} {Number(item.qty) > 1 ? `x${item.qty}` : ""}
                   </span>
                   <span className="item-price">${Number(item.price).toFixed(2)}</span>
                 </div>

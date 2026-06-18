@@ -16,7 +16,6 @@ import Orders from "./admin/pages/Orders.jsx";
 import Users from "./admin/pages/Users.jsx";
 import Analytics from "./admin/pages/Analytics.jsx";
 import AdminLogin from "./admin/pages/AdminLogin.jsx";
-import TrackOrder from "./components1/TrackOrder/TrackOrder.jsx";
 
 function AppContent({ cartItems, setCartItems, addToCart }) {
   const location = useLocation();
@@ -54,9 +53,7 @@ function AppContent({ cartItems, setCartItems, addToCart }) {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/checkout" element={<Checkout cartItems={cartItems} />} />
-        <Route path="/track-order" element={<TrackOrder />} />
-        <Route path="/track-order/:orderId" element={<TrackOrder />} />
-
+        
         {/* صفحات الأدمن */}
         <Route path="/admin" element={<Dashboard />} />
         <Route path="/admin/login" element={<AdminLogin />} />
