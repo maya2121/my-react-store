@@ -1,17 +1,15 @@
 import { useEffect, useState, useMemo } from "react";
 import "./Checkout.css";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../../firebase.js";
 
 function Checkout({ cartItems = [] }) {
   const navigate = useNavigate();
 
-  // حالات المدخلات (State)
+
   const [country, setCountry] = useState("LB");
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("credit_card");
   const [loading, setLoading] = useState(false);
 
   const baseUrl = "https://armanist.com";
@@ -97,8 +95,6 @@ function Checkout({ cartItems = [] }) {
       alert("Order confirmed successfully!");
       
       // هنا نقوم بتوجيهه لصفحة التتبع الجديدة ونرسل معها معرف الطلب القادم من السيرفر
-      const orderId = data.orderId || "SAMPLE_ORDER_ID";
-      navigate(/track-order/`${orderId}`);
 
     } catch (error) {
       console.error("Order Error:", error);
