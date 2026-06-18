@@ -10,8 +10,27 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  // دالة للتحقق من صحة صيغة الإيميل لمنع العشوائية
+  const validateEmail = (emailStr) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(emailStr.trim());
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+
+    // شرط التحقق من صحة الإيميل قبل أي عملية
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address (e.g., example@domain.com)");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
+
     if (!hasEnv || !auth) {
       try {
         const res = await fetch("https://armanist.com/public/categories");
@@ -25,6 +44,7 @@ function Login() {
       setError("Please configure Firebase environment");
       return;
     }
+    
     try {
       await signInWithEmailAndPassword(auth, email, password);
       const token = await auth.currentUser.getIdToken();
@@ -52,12 +72,24 @@ function Login() {
         </div>
 
         <form onSubmit={handleLogin}>
-          <input type="email" placeholder="Email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-          <input type="password" placeholder="Password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+          <input 
+            type="email" 
+            placeholder="Email" 
+            required 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+          />
+          <input 
+            type="password" 
+            placeholder="Password" 
+            required 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
+          />
 
           <button type="submit" className="login-btn">Login</button>
         </form>
-        {error && <div style={{ color: "red", marginTop: "10px" }}>{error}</div>}
+        {error && <div style={{ color: "#d61c1c", marginTop: "10px", fontSize: "14px", fontWeight: "500" }}>{error}</div>}
 
         <p className="register-text">
           Don't have an account? <span onClick={() => navigate("/register")}> Create account</span>
