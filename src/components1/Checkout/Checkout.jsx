@@ -161,17 +161,6 @@ function Checkout({ cartItems = [] }) {
 
           
           <div className="payment-methods">
-            <h4>Payment Method</h4>
-            <label className="radio-label">
-              <input 
-                type="radio" 
-                name="pay" 
-                value="credit_card"
-                checked={paymentMethod === "credit_card"} 
-                onChange={() => setPaymentMethod("credit_card")}
-              /> 
-              Credit Card
-            </label>
             <label className="radio-label">
               <input 
                 type="radio" 
