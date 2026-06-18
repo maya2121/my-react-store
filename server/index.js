@@ -32,6 +32,7 @@ let adminInitialized = false
 const allowDev = (process.env.ALLOW_DEV_UNAUTH || 'false').toLowerCase() === 'true'
 const adminUser = process.env.ADMIN_USERNAME || 'admin'
 const adminPass = process.env.ADMIN_PASSWORD || '1'
+let adminClients = []; // 👈 أضف هذا السطر هنا لتخزين اتصالات الأدمن
 const cloudinaryName = process.env.CLOUDINARY_CLOUD_NAME || ''
 const cloudinaryPreset = process.env.CLOUDINARY_UPLOAD_PRESET || ''
 const mailHost = process.env.MAIL_HOST || ''
@@ -240,6 +241,10 @@ const handlePlaceOrder = async (req, res) => {
     res.status(500).json({ error: "failed_to_place_order", details: String(error.message) })
   }
 }
+
+// إرسال التحديث للأدمن فوراً لكي يظهر الطلب الجديد في الجدول بدون ريفريش
+const currentOrdersTxt = await fs.readFile(ordersFile, 'utf8').catch(() => '[]');
+adminClients.forEach(client => client.write(`data: ${currentOrdersTxt}\n\n`));
 
 app.post('/api/orders', handlePlaceOrder)
 app.post('/orders', handlePlaceOrder)
@@ -500,7 +505,46 @@ app.get('/api/orders', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'failed_to_fetch_orders' })
   }
 })
+// راوت الـ Stream الخاص بالأدمن لجلب الطلبات وتحديثها تلقائياً
+app.get('/api/admin/notifications/stream', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
 
+  // إرسال الطلبات المخزنة فور فتح الأدمن للصفحة
+  fs.readFile(ordersFile, 'utf8')
+    .then(txt => {
+      const arr = JSON.parse(txt || '[]');
+      res.write(`data: ${JSON.stringify(arr)}\n\n`);
+    })
+    .catch(() => res.write(`data: []\n\n`));
+
+  // حفظ هذا الاتصال لنتحدث معه عند وصول أي طلب جديد
+  adminClients.push(res);
+
+  req.on('close', () => {
+    adminClients = adminClients.filter(client => client !== res);
+  });
+});
+
+// راوت احتياطي بنفس الاسم القديم بدون /api لو كان الفرونت إند يطلبه مباشرة
+app.get('/admin/notifications/stream', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  fs.readFile(ordersFile, 'utf8')
+    .then(txt => {
+      const arr = JSON.parse(txt || '[]');
+      res.write(`data: ${JSON.stringify(arr)}\n\n`);
+    })
+    .catch(() => res.write(`data: []\n\n`));
+
+  adminClients.push(res);
+  req.on('close', () => { adminClients = adminClients.filter(client => client !== res); });
+});
 // نسخة احتياطية بدون الـ /api لو كان الادمن يطلبها مباشرة
 app.get('/orders', verifyToken, async (req, res) => {
   try {
