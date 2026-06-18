@@ -489,6 +489,28 @@ app.get("*", (req, res) => {
 })
 
 const port = parseInt(process.env.PORT || '8080', 10)
+
+// الراوت  لجلب الطلبات وعرضها في لوحة التحكم للأدمن
+app.get('/api/orders', verifyToken, async (req, res) => {
+  try {
+    const txt = await fs.readFile(ordersFile, 'utf8').catch(() => '[]')
+    const arr = JSON.parse(txt)
+    res.json(Array.isArray(arr) ? arr : [])
+  } catch (e) {
+    res.status(500).json({ error: 'failed_to_fetch_orders' })
+  }
+})
+
+// نسخة احتياطية بدون الـ /api لو كان الادمن يطلبها مباشرة
+app.get('/orders', verifyToken, async (req, res) => {
+  try {
+    const txt = await fs.readFile(ordersFile, 'utf8').catch(() => '[]')
+    const arr = JSON.parse(txt)
+    res.json(Array.isArray(arr) ? arr : [])
+  } catch (e) {
+    res.status(500).json({ error: 'failed_to_fetch_orders' })
+  }
+})
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`)
 })

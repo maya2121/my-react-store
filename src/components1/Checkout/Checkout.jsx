@@ -70,46 +70,44 @@ function Checkout({ cartItems = [] }) {
   };
 
   // إرسال الطلب إلى السيرفر
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-    setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true); // هنا يبدأ الـ Processing
+  
     try {
-      const fullPhoneNumber = `${countryCodes[country] || ""}${phone}`;
-      
-      const res = await fetch(`${baseUrl}/orders`, {
+      const response = await fetch(`${baseUrl}/orders`, { // تأكد من وجود baseUrl هنا
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          items: cartItems,
-          phone: fullPhoneNumber,
+          name,
+          phone,
           country,
           address,
-          name,
-          paymentMethod, // سيرسل دائماً "cod"
-          total: totalPrice
-        })
+          paymentMethod,
+          items: cartItems,
+          total: totalPrice,
+        }),
       });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        alert(data?.error || "Failed to place order");
-        return;
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // تفريغ السلة وتوجيه العميل لصفحة النجاح
+        alert("Order Placed Successfully!");
+        // هنا يمكنك عمل navigate لصفحة النجاح أو تفريغ السلة
+      } else {
+        alert("Failed to place order: " + data.error);
       }
-
-      alert("Order confirmed successfully!");
-      
-      // هنا يمكنك توجيهه للرئيسية أو تفريغ السلة بدلاً من صفحة التتبع
-      navigate("/");
-
     } catch (error) {
-      console.error("Order Error:", error);
-      alert("Network error while placing order");
+      console.error("Error:", error);
+      alert("Something went wrong!");
     } finally {
-      setLoading(false);
+      setLoading(false); // 👈 هذا السطر السحري الذي ينهي الـ Processing ويعيد الزر لطبيعته إذا فشل أو نجح الطلب!
     }
   };
-
+  
   return (
     <div className="checkout-wrapper">
       <div className="checkout-content">
