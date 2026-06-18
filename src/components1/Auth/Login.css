@@ -128,3 +128,20 @@
     margin-bottom: 20px;
   }
 }
+/* الشاشة الكاملة لصفحة تسجيل الدخول فقط - حجب كامل 100% */
+.login-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #0b0b0b !important; /* اللون الأسود الفخم مسيطر على كامل الخلفية */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999 !important; /* رقم ضخم جداً ليغطي السلة والـ Checkout Now وأي فوتر بالموقع */
+  overflow: hidden; /* منع التمرير نهائياً */
+  padding: 20px;
+}
