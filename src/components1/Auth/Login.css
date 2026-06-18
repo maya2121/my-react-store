@@ -1,49 +1,48 @@
-/* تصفير الهوامش العامة للمتصفح */
-body {
-  margin: 0px;
-  padding: 0px;
-}
-
-/* الشاشة الكبيرة الكاملة (لابتوب / كمبيوتر) */
+/* الشاشة الكاملة لصفحة تسجيل الدخول فقط */
+/* تم استخدام fixed لتغطية الشاشة بالكامل ومنع أي صعود أو نزول (No Scroll) */
 .login-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
   height: 100vh;
-  padding: 40px 20px;
-  background: #0b0b0b; /* اللون الأسود الفخم المتناسق */
+  background: #0b0b0b; /* الأسود الفخم يغطي الشاشة كاملة فقط هنا */
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  z-index: 9999; /* عشان يغطي السلة الجانبية دغري وما تعلق وراك */
+  z-index: 99999; /* تضمن ظهورها فوق السلة وفوق أي عنصر بالصفحة الأساسية */
+  overflow: hidden; /* تمنع ظهور شريط التمرير نهائياً */
+  padding: 20px;
 }
 
-/* صندوق تسجيل الدخول (الأساسي على اللابتوب) */
+/* صندوق تسجيل الدخول - ثابت بالمنتصف تماماً */
 .login-box {
-  background: #141414; /* الرمادي الداكن */
+  background: #141414; /* رمادي داكن داخل الصندوق لحماية الهوية */
   border: 1px solid #222222;
   padding: 40px;
   border-radius: 12px;
-  width: 380px; /* العرض المثالي على الشاشات الكبيرة */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  width: 380px; 
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
   text-align: center;
 }
 
-/* اللوغو وتوسطه على اللابتوب */
+/* حاوية اللوغو - موسطة إجبارياً */
 .Logo1 {
   display: flex;
-  justify-content: center; /* التوسيط الأفقي الحقيقي */
-  align-items: center;     /* التوسيط العمودي */
+  justify-content: center; 
+  align-items: center;     
   width: 100%;
   margin-bottom: 10px;
 }
 
 .Logo1 img {
-  width: 160px; /* حجم اللوغو على اللابتوب */
+  width: 160px; 
   height: 160px;
-  margin-left: 0px !important; /* إلغاء أي هوامش قديمة كانت بتدفعه عاليقين */
+  margin-left: 0px !important; /* إلغاء أي إزاحة قديمة تمنع التوسط */
   object-fit: contain;
 }
 
-/* العناوين */
+/* العناوين بداخل الصندوق */
 .login-box h2 {
   color: white;
   margin-bottom: 25px;
@@ -51,7 +50,7 @@ body {
   font-weight: 600;
 }
 
-/* حقول الإدخال (Email & Password) */
+/* حقول الإدخال */
 .login-box input {
   width: 100%;
   padding: 14px;
@@ -65,16 +64,15 @@ body {
   transition: border-color 0.2s;
 }
 
-/* تأثير التحديد عند الكتابة */
 .login-box input:focus {
-  border-color: #b30000; /* البوردر بيقلب أحمر ناعم وفخم */
+  border-color: #b30000; /* تحديد أحمر ناعم عند الكتابة */
 }
 
-/* زر تسجيل الدخول / الإنشاء */
+/* زر تسجيل الدخول الأحمر */
 .login-btn {
-  width: 100%; /* ممتد بكامل الصندوق ليعطي مظهر احترافي */
+  width: 100%; 
   padding: 14px;
-  background: #b30000; /* الأحمر المعتمد */
+  background: #b30000; 
   border: none;
   color: white;
   font-weight: bold;
@@ -85,7 +83,7 @@ body {
 }
 
 .login-btn:hover {
-  background: #d61c1c; /* درجة أحمر أفتع عند التمرير بالماوس */
+  background: #d61c1c; 
 }
 
 .login-btn:active {
@@ -93,7 +91,7 @@ body {
   transform: scale(0.98);
 }
 
-/* نصوص التوجيه الأسفل */
+/* نصوص التوجيه بالأسفل */
 .register-text {
   color: #a0a0a0;
   margin-top: 20px;
@@ -112,26 +110,21 @@ body {
   text-decoration: underline;
 }
 
-
-/* 📱 الميديا كويري لتعديل الأبعاد أوتوماتيكياً على الموبايل والتابلت */
+/* 📱 الـ Media Queries لضبط الأبعاد التلقائي على الموبايل */
 @media (max-width: 768px) {
-  .login-page {
-    padding: 15px; /* تقليل الهوامش الخارجية ليناسب الشاشة الصغيرة */
-  }
-
   .login-box {
-    width: 100%; /* الصندوق بياخد كامل عرض الشاشة المتاحة */
-    max-width: 350px; /* حد أقصى عشان ما يطلع كبير بزيادة على الموبايل */
-    padding: 30px 20px; /* تقليل الحشو الداخلي */
+    width: 100%; 
+    max-width: 350px; 
+    padding: 30px 20px; 
   }
 
   .Logo1 img {
-    width: 130px; /* تصغير حجم اللوغو شوي ليناسب شاشة الموبايل */
+    width: 130px; 
     height: 130px;
   }
   
   .login-box h2 {
-    font-size: 20px; /* تصغير الخط قليلاً */
+    font-size: 20px;
     margin-bottom: 20px;
   }
 }
