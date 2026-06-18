@@ -1,103 +1,133 @@
-body{
+/* تصفير الهوامش العامة */
+body {
   margin: 0px;
+  background-color: #0b0b0b;
 }
 
+/* الصفحة الخلفية كاملة */
 .login-page {
-    height: 100vh;
-    padding: 40px 20px;
-    background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .login-box {
-    background: #111;
-    padding: 40px;
-    border-radius: 12px;
-    width: 350px;
-    box-shadow: 0 10px 30px rgba(0,0,0);
-    text-align: center;
-  }
-  
-  .login-box h2 {
-    color: white;
-    margin-bottom: 25px;
-  }
-  
-  .login-box input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: none;
-    border-radius: 8px;
-    background: #1f1f1f;
-    color: white;
-  }
-  
-  .login-box input:focus {
-    outline: 1px solid red;
-  }
-  
-  .login-btn {
-    width: 50%;
-    padding: 12px;
-    background: red;
-    border: none;
-    color: white;
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  
-  .login-btn:hover {
-    background: #ff4d4d;
-  }
-  
-  .register-text {
-    color: #aaa;
-    margin-top: 15px;
-  }
-  
-  .register-text span {
-    color: red;
-    cursor: pointer;
-  }
+  height: 100vh;
+  padding: 40px 20px;
+  background: #0b0b0b; /* أسود فخم متناسق مع الكاشير */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 9999; /* تضمن أن الصفحة تظهر فوق السلة الجانبية دغري وتخفيها */
+}
 
+/* صندوق تسجيل الدخول والإنشاء */
+.login-box {
+  background: #141414; /* رمادي داكن جداً مطابَق للكاشير */
+  border: 1px solid #222222;
+  padding: 40px;
+  border-radius: 12px;
+  width: 380px; /* تكبير العرض قليلاً لراحة العين */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
 
+/* العناوين داخل الصندوق */
+.login-box h2 {
+  color: white;
+  margin-bottom: 25px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* حقول الإدخال */
+.login-box input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 20px;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: white;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+/* تأثير التركيز على الحقول */
+.login-box input:focus {
+  border-color: #b30000; /* تحديد أحمر ناعم عند الكتابة بديل الأوتلاين المشرشر */
+}
+
+/* زر تسجيل الدخول / الإنشاء الأحمر */
+.login-btn {
+  width: 100%; /* جعل الزر بعرض الصندوق ليعطي مظهر رسمي وأسهل بالضغط */
+  padding: 14px;
+  background: #b30000; /* الأحمر المعتمد الفخم */
+  border: none;
+  color: white;
+  font-weight: bold;
+  font-size: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.login-btn:hover {
+  background: #d61c1c; /* أحمر أفتح عند الحوم */
+}
+
+.login-btn:active {
+  background: #8a0000;
+  transform: scale(0.98);
+}
+
+/* نصوص التبديل بين الحسابات */
+.register-text {
+  color: #a0a0a0;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.register-text span {
+  color: #d61c1c;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 5px;
+  transition: color 0.2s;
+}
+
+.register-text span:hover {
+  color: #ff4d4d;
+  text-decoration: underline;
+}
+
+/* حاوية اللوغو - مصلحة وموسطة بالكامل */
 .Logo1 {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  justify-content: center; /* توسيط أفقي */
+  align-items: center;     /* توسيط عمودي */
+  width: 100%;
+  margin-bottom: -10px;    /* لتقريب اللوغو من الحقول بشكل متناسق */
 }
 
 .Logo1 img {
-    width: 200px;
-    height: 200px;
-    border-radius: 50px;
-    margin-left: 80px;
-    position:relative;
+  width: 160px;  /* حجم متناسق للكمبيوتر والموبايل بدون مبالغة */
+  height: 160px;
+  border-radius: 50%; /* تدوير مثالي إذا كان دائري */
+  margin-left: 0;     /* إلغاء الـ 80px التي كانت تدفعه جانباً */
+  object-fit: contain;
 }
+
+/* التجاوب مع شاشات الموبايل */
 @media (max-width: 768px) {
+  .login-page {
+    padding: 15px;
+  }
 
   .login-box {
     width: 100%;
-    max-width: 350px;
-    padding: 25px;
-  }
-
-  .Logo1 {
-    justify-content: center;
+    max-width: 360px;
+    padding: 30px 20px;
   }
 
   .Logo1 img {
-    width: 140px;
-    height: 140px;
-    margin-left: 0;
-  }
-
-  .login-btn {
-    width: 100%;
+    width: 130px;
+    height: 130px;
   }
 }

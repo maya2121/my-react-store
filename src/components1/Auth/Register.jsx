@@ -9,7 +9,7 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-// الدالة الصحيحة والمصلحة 100% لفحص الإيميل
+
 const validateEmail = (emailStr) => {
   const emailRegex = `/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/`;
   return emailRegex.test(emailStr.trim());
