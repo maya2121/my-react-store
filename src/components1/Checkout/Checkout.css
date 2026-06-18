@@ -1,38 +1,239 @@
+/* إعدادات عامة وتصفير الهوامش */
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* الخلفية العامة للموقع باللون الأسود الفخم */
 .checkout-wrapper {
-  background-color: #0e0c0c;
+  background-color: #0b0b0b;
   min-height: 100vh;
-  padding: 20px;
+  padding: 40px 20px;
+  color: #e0e0e0; /* كتابة رمادي فاتح مريح */
 }
 
+/* تقسيم الصفحة لقسمين */
 .checkout-content {
   max-width: 1100px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1.5fr 1fr;
-  gap: 25px;
+  gap: 30px;
+  align-items: start;
 }
 
-.input-group input {
+/* زر الرجوع للمتجر */
+.back-button-container {
+  grid-column: 1 / -1;
+  margin-bottom: -10px;
+}
+
+.back-btn {
+  background: #141414; /* خلفية رمادية متناسقة مع الصناديق */
+  border: 1px solid #333333; /* بوردر رمادي يبين وجود الزر */
+  color: #a0a0a0;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+/* تفاعل زر الرجوع عند حوم الماوس */
+.back-btn:hover {
+  border-color: #555555; /* تفتيح البوردر */
+  color: #ffffff; /* تفتيح الخط */
+  background: #1c1c1c;
+}
+
+/* تصميم الأقسام (بيانات الشحن وموجز الطلب) */
+.billing-section, .summary-section {
+  background-color: #141414; /* رمادي داكن جداً خلفية الصناديق */
+  border: 1px solid #222222; /* حدود رمادية ناعمة */
+  border-radius: 12px;
+  padding: 30px;
+}
+
+.billing-section h3, .summary-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  color: #ffffff;
+  border-bottom: 1px solid #222;
+  padding-bottom: 10px;
+}
+
+/* الحقول والنصوص */
+.input-group label {
+  display: block;
+  font-size: 13px;
+  color: #a0a0a0; /* رمادي متوسط للعناوين */
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input-group input, .phone-line select {
   width: 100%;
   padding: 14px;
-  margin-bottom: 15px;
-  border: 1px solid #333;
+  margin-bottom: 20px;
+  border: 1px solid #2a2a2a;
   border-radius: 8px;
-  background: #111;
-  color: white;
-  box-sizing: border-box;
+  background: #1a1a1a; 
+  color: #ffffff;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
 }
 
+.input-group input:focus, .phone-line select:focus {
+  border-color: #555555; /* تفتيح الحدود عند الضغط */
+}
+
+/* سطر الهاتف (علم البلد + كود الدولة + رقم الهاتف) */
+.phone-line {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* قائمة البلدان من اليسار لليمين */
+.phone-line select {
+  width: 160px;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+/* كود البلد يظهر على اليسار بجانب القائمة */
+.country-code {
+  background: #1a1a1a;
+  padding: 14px 12px;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #a0a0a0;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.phone-line input {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+/* ملاحظة الدفع عند الاستلام */
+.payment-methods {
+  margin-top: 15px;
+  background: #1a1a1a;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 3px solid #444; /* خط رمادي جانبي للتميز */
+}
+
+.cod-notice {
+  font-size: 14px;
+  color: #d0d0d0;
+}
+
+/* قائمة المنتجات في الملخص */
+.items-list {
+  margin-bottom: 25px;
+}
+
+.empty-cart-text {
+  color: #777;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.item-row, .total-row {
+  display: flex;
+  justify-content: space-between; /* هادي بتدفع السعر لليمين والاسم لليسار */
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #1c1c1c;
+}
+
+.item-name {
+  color: #c0c0c0;
+  font-size: 14.5px;
+  text-align: left;
+}
+
+.item-price {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* سطر المجموع الإجمالي */
+.total-row {
+  border-top: 1px solid #2a2a2a;
+  border-bottom: none;
+  padding-top: 20px;
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.total-price {
+  color: #ffffff;
+  font-size: 20px;
+}
+
+.confirm-btn {
+  width: 100%;
+  background-color: #b30000; /* أحمر أساسي فخم */
+  color: #ffffff; /* كتابة بيضاء واضحة */
+  border: none;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-top: 15px;
+}
+
+/* عند حوم الماوس (Hover) يتغير لدرجة أحمر مختلفة */
+.confirm-btn:hover:not(:disabled) {
+  background-color: #d61c1c; /* درجة أحمر أفتح وأوضح عند الحوم */
+}
+
+/* عند الضغط الفعلي (Click/Active) يصبح أغمق شوي ليعطي إيحاء بالضغط */
+.confirm-btn:active:not(:disabled) {
+  background-color: #8a0000; /* أحمر داكن جداً */
+  transform: scale(0.98);
+}
+
+.confirm-btn:disabled {
+  background-color: #222222;
+  color: #555555;
+  cursor: not-allowed;
+}
+
+
+/* التجاوب مع الشاشات الصغيرة (الهواتف) */
 @media (max-width: 900px) {
   .checkout-content {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* ترتيب العناصر تحت بعضها */
+    gap: 20px;
   }
 
   .checkout-wrapper {
-    padding: 12px;
+    padding: 15px;
+  }
+
+  .billing-section, .summary-section {
+    padding: 20px;
+  }
+  
+  .phone-line {
+    flex-wrap: wrap; /* لجعل حقل الهاتف ينزل سطر إذا كانت الشاشة صغيرة جداً */
+  }
+  
+  .phone-line select {
+    width: 100%;
   }
 }
