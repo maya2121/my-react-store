@@ -15,7 +15,7 @@ function Checkout({ cartItems = [] }) {
   // تثبيت الدفع عند الاستلام فقط وإلغاء أي خيارات أخرى
   const paymentMethod = "cod"; 
 
-  const baseUrl = "https://armanist.com";
+  const baseUrl = "https://armanist.com/api";
 
   const countryCodes = {
     LB: "+961",
