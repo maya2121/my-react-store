@@ -181,6 +181,15 @@ const sendOrderEmail = async (order) => {
   }
 }
 
+const notifyAdminsNewOrder = async (order) => {
+  const payload = `data: ${JSON.stringify({ type: 'order', order })}\n\n`
+  adminClients.forEach(client => {
+    try {
+      client.write(payload)
+    } catch {}
+  })
+}
+
 // تهيئة الملفات في وضع التطوير المحلي
 const store = () => admin.firestore()
 if (allowDev) {
@@ -233,9 +242,11 @@ const handlePlaceOrder = async (req, res) => {
     }
 
     await saveOrderDev(newOrder)
-    await sendOrderEmail(newOrder)
-
     res.status(201).json({ ok: true, order: newOrder })
+    await notifyAdminsNewOrder(newOrder)
+    setTimeout(() => {
+      sendOrderEmail(newOrder).catch(() => {})
+    }, 0)
   } catch (error) {
     console.error("Order processing error:", error)
     res.status(500).json({ error: "failed_to_place_order", details: String(error.message) })
