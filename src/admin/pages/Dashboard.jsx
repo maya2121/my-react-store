@@ -6,7 +6,10 @@ import "../styles/admin.css";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const baseUrl = "https://armanist.com";
+  const baseUrl =
+    typeof window !== "undefined" && !/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
+      ? window.location.origin
+      : "https://armanist.com";
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [admins, setAdmins] = useState([]);
@@ -37,9 +40,9 @@ const Dashboard = () => {
       setStatusMsg("");
       try {
         const [ordersRes, productsRes, adminsRes] = await Promise.all([
-          fetch(`${baseUrl}/orders`, { headers: headersFor() }),
-          fetch(`${baseUrl}/products`, { headers: headersFor() }),
-          fetch(`${baseUrl}/admin-users`, { headers: headersFor() })
+          fetch(`${baseUrl}/orders?t=${Date.now()}`, { headers: headersFor(), cache: "no-store" }),
+          fetch(`${baseUrl}/products?t=${Date.now()}`, { headers: headersFor(), cache: "no-store" }),
+          fetch(`${baseUrl}/admin-users?t=${Date.now()}`, { headers: headersFor(), cache: "no-store" })
         ]);
         if ([ordersRes, productsRes, adminsRes].some(r => r.status === 401)) {
           localStorage.removeItem("adminUser");
@@ -65,7 +68,18 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
+    const handleNewOrder = (e) => {
+      const order = e.detail;
+      if (!order?.id) return;
+      setOrders((prev) => [order, ...(Array.isArray(prev) ? prev.filter((o) => o.id !== order.id) : [])]);
+    };
     load();
+    const t = setInterval(load, 5000);
+    window.addEventListener("admin:new-order", handleNewOrder);
+    return () => {
+      clearInterval(t);
+      window.removeEventListener("admin:new-order", handleNewOrder);
+    };
   }, [navigate]);
 
   const getOrderTotal = (order) => {

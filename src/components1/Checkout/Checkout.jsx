@@ -1,21 +1,19 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import "./Checkout.css";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../../firebase.js";
 
-function Checkout({ cartItems = [] }) {
+function Checkout({ cartItems }) {
   const navigate = useNavigate();
 
-  // إعداد حالات الإدخال والتحكم
   const [country, setCountry] = useState("LB");
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [loading, setLoading] = useState(false);
-  
-  // تثبيت الدفع عند الاستلام فقط وإلغاء أي خيارات أخرى
-  const paymentMethod = "cod"; 
-
-  const baseUrl = "https://armanist.com/api";
+  const baseUrl =
+    typeof window !== "undefined" && !/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
+      ? window.location.origin
+      : "https://armanist.com";
 
   const countryCodes = {
     LB: "+961",
@@ -26,117 +24,84 @@ function Checkout({ cartItems = [] }) {
     SY: "+963"
   };
 
-  // حساب المجموع الإجمالي بذكاء
-  const totalPrice = useMemo(() => {
-    return cartItems.reduce((acc, item) => {
-      const price = Number.parseFloat(item?.price);
-      const qty = Number(item?.qty) || 1;
-      return acc + (Number.isFinite(price) ? price * qty : 0);
-    }, 0);
-  }, [cartItems]);
-
-  // حماية الصفحة: توجيه المستخدم لوحة تسجيل الدخول إذا لم يكن مسجلاً
+  const totalPrice = (Array.isArray(cartItems) ? cartItems : []).reduce((acc, item) => {
+    const price = Number.parseFloat(item?.price);
+    const qty = Number(item?.qty) || 1;
+    return acc + (Number.isFinite(price) ? price * qty : 0);
+  }, 0);
   useEffect(() => {
     const hasToken = !!localStorage.getItem("idToken");
     const hasDevUser = !!localStorage.getItem("devUser");
-    
-    // فحص آمن لـ auth إذا لم تكن مستوردة لمنع انهيار الكود
-    const hasFirebaseUser = typeof auth !== "undefined" && !!auth?.currentUser;
-    
+    const hasFirebaseUser = !!auth?.currentUser;
     if (!hasToken && !hasDevUser && !hasFirebaseUser) {
       navigate("/login");
     }
   }, [navigate]);
 
-  // التحقق من صحة البيانات المدخلة
-  const validateForm = () => {
-    if (!name.trim()) {
-      alert("Please enter your full name");
-      return false;
-    }
+  const validatePhone = () => {
     if (phone.length < 7) {
       alert("Phone number is not valid");
-      return false;
-    }
-    if (!address.trim()) {
-      alert("Please enter your detailed address");
-      return false;
-    }
-    if (cartItems.length === 0) {
-      alert("Your cart is empty. Please add products first");
       return false;
     }
     return true;
   };
 
-  // إرسال الطلب إلى السيرفر
-  const handleSubmit = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    
-    // إذا كان يرسل بالفعل، لا تضغط مرتين
-    if (loading) return; 
-  
-    setLoading(true);
-  
+  const handleSubmit = async () => {
+    if (!validatePhone()) return;
+    if (!Array.isArray(cartItems) || cartItems.length === 0) {
+      alert("Your cart is empty. Please add products first");
+      return;
+    }
     try {
-      // التأكد من صياغة الرابط بشكل صحيح مع وضع الـ /
-      const response = await fetch(`${baseUrl}/orders`, {
+      const total = (Array.isArray(cartItems) ? cartItems : []).reduce((acc, item) => {
+        const price = Number.parseFloat(item?.price);
+        const qty = Number(item?.qty) || 1;
+        return acc + (Number.isFinite(price) ? price * qty : 0);
+      }, 0);
+      const res = await fetch(`${baseUrl}/orders`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        cache: "no-store",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: name,
-          phone: phone,
-          country: country,
-          address: address,
-          paymentMethod: paymentMethod,
           items: cartItems,
-          total: totalPrice,
-        }),
+          phone,
+          country,
+          address,
+          name,
+          total
+        })
       });
-  
-      const data = await response.json().catch(() => ({}));
-  
-      if (response.ok) {
-        alert("🎉 تم تسجيل طلبك بنجاح! شكراً لك.");
-        // هنا يمكنك تفريغ السلة أو توجيه المستخدم لصفحة أخرى إذا أردت
-        // window.location.href = "/"; 
-      } else {
-        alert(`❌ فشل إرسال الطلب: ${data.error || 'خطأ غير معروف من السيرفر'}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err?.error || "Failed to place order");
+        return;
       }
-  
-    } catch (error) {
-      console.error("Checkout Error:", error);
-      alert(`🌐 خطأ في الاتصال بالسيرفر: ${error.message}`);
-    } finally {
-      // هذا السطر يضمن عودة الزر لطبيعته دائماً مهما كانت النتيجة
-      setLoading(false); 
+      alert("Order confirmed successfully");
+    } catch {
+      alert("Network error while placing order");
     }
   };
+
   return (
     <div className="checkout-wrapper">
       <div className="checkout-content">
-        
-        <div className="back-button-container">
-          <button onClick={() => navigate("/")} className="back-btn">
+        <div style={{ gridColumn: "1 / -1", marginBottom: "12px", display: "flex", justifyContent: "flex-end" }}>
+          <button
+            onClick={() => navigate("/")}
+            style={{ padding: "10px 14px", borderRadius: "10px", background: "#222", color: "#fff", border: "1px solid #333" }}
+          >
             ← Back to Store
           </button>
         </div>
 
+        {/* بيانات العميل */}
         <div className="billing-section">
-          <h3>Payment and Shipping Data</h3>
+          <h3> Payment and shipping data </h3>
 
           <div className="input-group">
-            <label>Full Name</label>
-            <input 
-              type="text" 
-              placeholder="John Doe" 
-              value={name} 
-              onChange={(e) => setName(e.target.value)} 
-            />
+            <input type="text" placeholder="Full name" value={name} onChange={(e)=>setName(e.target.value)} />
 
-            <label>Phone Number</label>
+            {/* الهاتف مع الدولة */}
             <div className="phone-line">
               <select value={country} onChange={(e) => setCountry(e.target.value)}>
                 <option value="LB">🇱🇧 Lebanon</option>
@@ -146,60 +111,49 @@ function Checkout({ cartItems = [] }) {
                 <option value="JO">🇯🇴 Jordan</option>
                 <option value="SY">🇸🇾 Syria</option>
               </select>
+
               <span className="country-code">{countryCodes[country]}</span>
+
               <input
                 type="tel"
-                placeholder="70 123 456"
+                placeholder="The phone number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
               />
             </div>
 
-            <label>Detailed Address</label>
-            <input 
-              type="text" 
-              placeholder="Building, Street, Floor..." 
-              value={address} 
-              onChange={(e) => setAddress(e.target.value)} 
-            />
+            <input type="text" placeholder="Address in detail" value={address} onChange={(e)=>setAddress(e.target.value)} />
           </div>
 
           <div className="payment-methods">
-            <p className="cod-notice">
-              💵 <strong>Payment Method:</strong> Cash on Delivery (COD) only.
-            </p>
+            <h4> Soft payment</h4>
+
+            <label>
+              <input type="radio" name="pay" checked readOnly /> Cash on delivery
+            </label>
           </div>
         </div>
 
+        {/* يسار: ملخص السلة */}
         <div className="summary-section">
-          <h3>Request Summary</h3>
+          <h3>Request summary</h3>
 
           <div className="items-list">
-            {cartItems.length === 0 ? (
-              <p className="empty-cart-text">Your cart is empty</p>
-            ) : (
-              cartItems.map(item => (
-                <div key={item.id} className="item-row">
-                  <span className="item-name">
-                    {item.name} {Number(item.qty) > 1 ? `x${item.qty}` : ""}
-                  </span>
-                  <span className="item-price">${Number(item.price).toFixed(2)}</span>
-                </div>
-              ))
-            )}
+            {cartItems.map(item => (
+              <div key={item.id} className="item-row">
+                <span>{item.name}{Number(item.qty) > 1 ? ` x${item.qty}` : ""}</span>
+                <span>{item.price}</span>
+              </div>
+            ))}
           </div>
 
           <div className="total-row">
             <span>Total</span>
-            <span className="total-price">${totalPrice.toFixed(2)}</span>
+            <span>{totalPrice.toFixed(2)} $</span>
           </div>
 
-          <button 
-            className="confirm-btn" 
-            onClick={handleSubmit} 
-            disabled={totalPrice <= 0 || loading}
-          >
-            {loading ? "Processing..." : "Complete Order Now"}
+          <button className="confirm-btn" onClick={handleSubmit} disabled={totalPrice <= 0}>
+            Complete the order now
           </button>
         </div>
 

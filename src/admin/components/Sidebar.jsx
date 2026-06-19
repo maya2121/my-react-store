@@ -5,7 +5,10 @@ import "../styles/admin.css";
 const Sidebar = () => {
   const navigate = useNavigate();
   const [adminName, setAdminName] = useState("Admin");
-  const baseUrl = "https://armanist.com";
+  const baseUrl =
+    typeof window !== "undefined" && !/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
+      ? window.location.origin
+      : "https://armanist.com";
   const [notifCount, setNotifCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifList, setNotifList] = useState([]);
@@ -28,13 +31,55 @@ const Sidebar = () => {
   useEffect(() => {
     const username = localStorage.getItem("adminUser");
     const password = localStorage.getItem("adminPass");
+    let es;
+    let reconnectTimer;
+    let cancelled = false;
+
+    const connectNotifications = () => {
+      if (cancelled) return;
+      es = new EventSource(
+        `${baseUrl}/admin/notifications/stream?u=${encodeURIComponent(username)}&p=${encodeURIComponent(password)}&t=${Date.now()}`,
+        { withCredentials: false }
+      );
+      es.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data?.type === "order" && data.order) {
+            const order = data.order;
+            setNotifCount((c) => c + 1);
+            setNotifList((list) => {
+              const item = {
+                id: order.id,
+                name: order.name || "New order",
+                total: order.total,
+                time: order.createdAt || new Date().toISOString()
+              };
+              return [item, ...list.filter((n) => n.id !== item.id)].slice(0, 5);
+            });
+            window.dispatchEvent(new CustomEvent("admin:new-order", { detail: order }));
+            setNotifOpen(true);
+            playBeep();
+          }
+        } catch {}
+      };
+      es.onerror = () => {
+        try {
+          es.close();
+        } catch {}
+        if (!cancelled) {
+          reconnectTimer = window.setTimeout(connectNotifications, 2000);
+        }
+      };
+    };
+
     if (!username || !password) {
       navigate("/admin/login");
       return;
     }
     setAdminName(username);
-    fetch(`${baseUrl}/admin-login`, {
+    fetch(`${baseUrl}/admin-login?t=${Date.now()}`, {
       method: "POST",
+      cache: "no-store",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password })
     })
@@ -43,39 +88,24 @@ const Sidebar = () => {
           localStorage.removeItem("adminUser");
           localStorage.removeItem("adminPass");
           navigate("/admin/login");
+          return;
         }
-          const es = new EventSource(`${baseUrl}/admin/notifications/stream?u=${encodeURIComponent(username)}&p=${encodeURIComponent(password)}`, {
-            withCredentials: false
-          });
-          es.onmessage = (e) => {
-            try {
-              const data = JSON.parse(e.data);
-              if (data?.type === "order") {
-                setNotifCount((c) => c + 1);
-                setNotifList((list) => {
-                  const item = {
-                    id: data.order?.id,
-                    name: data.order?.name || "New order",
-                    total: data.order?.total,
-                    time: data.order?.createdAt || new Date().toISOString()
-                  };
-                  const next = [item, ...list].slice(0, 5);
-                  return next;
-                });
-                setNotifOpen(true);
-                playBeep();
-              }
-            } catch {}
-          };
-          es.onerror = () => {
-            es.close();
-          };
+        connectNotifications();
       })
       .catch(() => {
         localStorage.removeItem("adminUser");
         localStorage.removeItem("adminPass");
         navigate("/admin/login");
       });
+    return () => {
+      cancelled = true;
+      if (reconnectTimer) window.clearTimeout(reconnectTimer);
+      if (es) {
+        try {
+          es.close();
+        } catch {}
+      }
+    };
   }, [navigate]);
 
   useEffect(() => {

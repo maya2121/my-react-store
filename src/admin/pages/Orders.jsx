@@ -6,7 +6,10 @@ import "../styles/admin.css";
 const Orders = () => {
 
   const [orders, setOrders] = useState([]);
-  const baseUrl = "https://armanist.com";
+  const baseUrl =
+    typeof window !== "undefined" && !/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
+      ? window.location.origin
+      : "https://armanist.com";
 
   const headersFor = () => {
     const h = {};
@@ -22,15 +25,27 @@ const Orders = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch(`${baseUrl}/orders`, { headers: headersFor() });
+        const res = await fetch(`${baseUrl}/orders?t=${Date.now()}`, {
+          headers: headersFor(),
+          cache: "no-store"
+        });
         if (!res.ok) return;
         const data = await res.json().catch(() => []);
         setOrders(Array.isArray(data) ? data : []);
       } catch {}
     };
+    const handleNewOrder = (e) => {
+      const order = e.detail;
+      if (!order?.id) return;
+      setOrders((prev) => [order, ...(Array.isArray(prev) ? prev.filter((o) => o.id !== order.id) : [])]);
+    };
     load();
     const t = setInterval(load, 5000);
-    return () => clearInterval(t);
+    window.addEventListener("admin:new-order", handleNewOrder);
+    return () => {
+      clearInterval(t);
+      window.removeEventListener("admin:new-order", handleNewOrder);
+    };
   }, []);
 
   const deleteOrder = async (id) => {
