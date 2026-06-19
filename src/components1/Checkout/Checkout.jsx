@@ -79,6 +79,8 @@ function Checkout({ cartItems, setCartItems }) {
     }
     setSubmitting(true);
     try {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 25000);
       const total = (Array.isArray(cartItems) ? cartItems : []).reduce((acc, item) => {
         const price = Number.parseFloat(item?.price);
         const qty = Number(item?.qty) || 1;
@@ -88,6 +90,7 @@ function Checkout({ cartItems, setCartItems }) {
         method: "POST",
         cache: "no-store",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           items: cartItems,
           phone,
@@ -96,19 +99,25 @@ function Checkout({ cartItems, setCartItems }) {
           name,
           total
         })
-      });
+      }).finally(() => window.clearTimeout(timeoutId));
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         setSubmitError(err?.error || "فشل إرسال الطلب");
         return;
       }
-      setSubmitSuccess("تم إرسال الطلب بنجاح");
+      const payload = await res.json().catch(() => ({}));
+      const orderId = payload?.id || payload?.order?.id;
+      setSubmitSuccess(orderId ? `تم إرسال الطلب بنجاح (رقم الطلب: ${orderId})` : "تم إرسال الطلب بنجاح");
       if (typeof setCartItems === "function") {
         setCartItems([]);
       }
       setTimeout(() => navigate("/"), 1200);
-    } catch {
-      setSubmitError("حدث خطأ بالشبكة أثناء إرسال الطلب");
+    } catch (e) {
+      if (e?.name === "AbortError") {
+        setSubmitError("الطلب عم ياخد وقت طويل… جرّب مرة ثانية");
+      } else {
+        setSubmitError("حدث خطأ بالشبكة أثناء إرسال الطلب");
+      }
     } finally {
       setSubmitting(false);
     }
