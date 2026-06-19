@@ -486,24 +486,6 @@ app.get('/admin-users', verifyToken, (req, res) => {
   res.json(adminUsers)
 })
 
-// ==========================================================
-// 🚀 تقديم ملفات الـ React Frontend (dist)
-// ==========================================================
-app.use(express.static(path.join(__dirname, "../dist"), {
-  setHeaders(res, filePath) {
-    if (filePath.endsWith('index.html')) {
-      res.setHeader('Cache-Control', 'no-store')
-    } else if (filePath.includes(`${path.sep}assets${path.sep}`)) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
-    }
-  }
-}))
-
-app.get("*", (req, res) => {
-  res.setHeader('Cache-Control', 'no-store')
-  res.sendFile(path.join(__dirname, "../dist/index.html"))
-})
-
 const port = parseInt(process.env.PORT || '8080', 10)
 
 // الراوت  لجلب الطلبات وعرضها في لوحة التحكم للأدمن
@@ -566,6 +548,25 @@ app.get('/orders', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'failed_to_fetch_orders' })
   }
 })
+
+// ==========================================================
+// 🚀 تقديم ملفات الـ React Frontend (dist)
+// ==========================================================
+app.use(express.static(path.join(__dirname, "../dist"), {
+  setHeaders(res, filePath) {
+    if (filePath.endsWith('index.html')) {
+      res.setHeader('Cache-Control', 'no-store')
+    } else if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+    }
+  }
+}))
+
+app.get("*", (req, res) => {
+  res.setHeader('Cache-Control', 'no-store')
+  res.sendFile(path.join(__dirname, "../dist/index.html"))
+})
+
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`)
 })
