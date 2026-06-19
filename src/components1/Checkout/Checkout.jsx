@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../../firebase.js";
 import { onAuthStateChanged } from "firebase/auth";
 
-function Checkout({ cartItems }) {
+function Checkout({ cartItems, setCartItems }) {
   const navigate = useNavigate();
 
   const [country, setCountry] = useState("LB");
@@ -12,6 +12,9 @@ function Checkout({ cartItems }) {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [authChecked, setAuthChecked] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [submitSuccess, setSubmitSuccess] = useState("");
   const baseUrl =
     typeof window !== "undefined" && !/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
       ? window.location.origin
@@ -54,20 +57,27 @@ function Checkout({ cartItems }) {
 
   if (!authChecked) return null;
 
-  const validatePhone = () => {
-    if (phone.length < 7) {
-      alert("Phone number is not valid");
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = async () => {
-    if (!validatePhone()) return;
-    if (!Array.isArray(cartItems) || cartItems.length === 0) {
-      alert("Your cart is empty. Please add products first");
+    if (submitting) return;
+    setSubmitError("");
+    setSubmitSuccess("");
+    if (!name.trim()) {
+      setSubmitError("يرجى إدخال الاسم الكامل");
       return;
     }
+    if (phone.length < 7) {
+      setSubmitError("يرجى إدخال رقم هاتف صحيح");
+      return;
+    }
+    if (!address.trim()) {
+      setSubmitError("يرجى إدخال العنوان بالتفصيل");
+      return;
+    }
+    if (!Array.isArray(cartItems) || cartItems.length === 0) {
+      setSubmitError("السلة فارغة، أضف منتجات أولاً");
+      return;
+    }
+    setSubmitting(true);
     try {
       const total = (Array.isArray(cartItems) ? cartItems : []).reduce((acc, item) => {
         const price = Number.parseFloat(item?.price);
@@ -89,12 +99,18 @@ function Checkout({ cartItems }) {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        alert(err?.error || "Failed to place order");
+        setSubmitError(err?.error || "فشل إرسال الطلب");
         return;
       }
-      alert("Order confirmed successfully");
+      setSubmitSuccess("تم إرسال الطلب بنجاح");
+      if (typeof setCartItems === "function") {
+        setCartItems([]);
+      }
+      setTimeout(() => navigate("/"), 1200);
     } catch {
-      alert("Network error while placing order");
+      setSubmitError("حدث خطأ بالشبكة أثناء إرسال الطلب");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -168,8 +184,11 @@ function Checkout({ cartItems }) {
             <span>{totalPrice.toFixed(2)} $</span>
           </div>
 
-          <button className="confirm-btn" onClick={handleSubmit} disabled={totalPrice <= 0}>
-            Complete the order now
+          {submitError && <div className="checkout-message checkout-error">{submitError}</div>}
+          {submitSuccess && <div className="checkout-message checkout-success">{submitSuccess}</div>}
+
+          <button className="confirm-btn" onClick={handleSubmit} disabled={totalPrice <= 0 || submitting}>
+            {submitting ? "جارٍ إرسال الطلب..." : "Complete the order now"}
           </button>
         </div>
 

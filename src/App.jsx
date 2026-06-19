@@ -52,7 +52,7 @@ function AppContent({ cartItems, setCartItems, addToCart }) {
         {/* باقي الصفحات */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/checkout" element={<Checkout cartItems={cartItems} />} />
+        <Route path="/checkout" element={<Checkout cartItems={cartItems} setCartItems={setCartItems} />} />
         
         {/* صفحات الأدمن */}
         <Route path="/admin" element={<Dashboard />} />
