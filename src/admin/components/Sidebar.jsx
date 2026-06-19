@@ -59,6 +59,10 @@ const Sidebar = () => {
             window.dispatchEvent(new CustomEvent("admin:new-order", { detail: order }));
             setNotifOpen(true);
             playBeep();
+          } else if (data?.type === "order_updated" && data.order) {
+            window.dispatchEvent(new CustomEvent("admin:order-updated", { detail: data.order }));
+          } else if (data?.type === "order_deleted" && data.id) {
+            window.dispatchEvent(new CustomEvent("admin:order-deleted", { detail: { id: data.id } }));
           }
         } catch {}
       };

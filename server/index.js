@@ -160,6 +160,37 @@ const saveOrderDev = async (order) => {
   } catch {}
 }
 
+const updateOrderDev = async (id, updater) => {
+  try {
+    const txt = await fs.readFile(ordersFile, 'utf8').catch(() => '[]')
+    const arr = JSON.parse(txt)
+    const items = Array.isArray(arr) ? arr : []
+    const idx = items.findIndex(o => String(o?.id) === String(id))
+    if (idx === -1) return null
+    const nextOrder = updater(items[idx])
+    items[idx] = nextOrder
+    await fs.writeFile(ordersFile, JSON.stringify(items, null, 2))
+    return nextOrder
+  } catch {
+    return null
+  }
+}
+
+const deleteOrderDev = async (id) => {
+  try {
+    const txt = await fs.readFile(ordersFile, 'utf8').catch(() => '[]')
+    const arr = JSON.parse(txt)
+    const items = Array.isArray(arr) ? arr : []
+    const before = items.length
+    const next = items.filter(o => String(o?.id) !== String(id))
+    if (next.length === before) return false
+    await fs.writeFile(ordersFile, JSON.stringify(next, null, 2))
+    return true
+  } catch {
+    return false
+  }
+}
+
 const sendOrderEmail = async (order) => {
   if (!mailer) return
   try {
@@ -183,6 +214,15 @@ const sendOrderEmail = async (order) => {
 
 const notifyAdminsNewOrder = async (order) => {
   const payload = `data: ${JSON.stringify({ type: 'order', order })}\n\n`
+  adminClients.forEach(client => {
+    try {
+      client.write(payload)
+    } catch {}
+  })
+}
+
+const notifyAdminsEvent = async (event) => {
+  const payload = `data: ${JSON.stringify(event)}\n\n`
   adminClients.forEach(client => {
     try {
       client.write(payload)
@@ -259,6 +299,32 @@ adminClients.forEach(client => client.write(`data: ${currentOrdersTxt}\n\n`));
 
 app.post('/api/orders', handlePlaceOrder)
 app.post('/orders', handlePlaceOrder)
+
+app.put('/orders/:id/status', verifyToken, async (req, res) => {
+  const { id } = req.params
+  const status = String(req.body?.status || '').trim().toLowerCase()
+  if (!status) return res.status(400).json({ error: 'status_required' })
+  try {
+    const updated = await updateOrderDev(id, (order) => ({ ...order, status }))
+    if (!updated) return res.status(404).json({ error: 'not_found' })
+    res.json(updated)
+    await notifyAdminsEvent({ type: 'order_updated', order: updated })
+  } catch (error) {
+    res.status(500).json({ error: 'failed_to_update_order', details: String(error?.message || error) })
+  }
+})
+
+app.delete('/orders/:id', verifyToken, async (req, res) => {
+  const { id } = req.params
+  try {
+    const removed = await deleteOrderDev(id)
+    if (!removed) return res.status(404).json({ error: 'not_found' })
+    res.status(204).end()
+    await notifyAdminsEvent({ type: 'order_deleted', id })
+  } catch (error) {
+    res.status(500).json({ error: 'failed_to_delete_order', details: String(error?.message || error) })
+  }
+})
 
 // ==========================================================
 // 🖼️ راوت رفع الصور (مُعدل ومؤمن لـ Cloudinary بدون FormData متصفح)
