@@ -9,11 +9,25 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const baseUrl =
+    typeof window !== "undefined" && !/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
+      ? window.location.origin
+      : "https://armanist.com";
 
   // دالة للتحقق من صحة صيغة الإيميل لمنع العشوائية
   const validateEmail = (emailStr) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(emailStr.trim());
+  };
+
+  const canUseDevLogin = async () => {
+    try {
+      const res = await fetch(`${baseUrl}/health?t=${Date.now()}`, { cache: "no-store" });
+      const data = await res.json().catch(() => ({}));
+      return !!data?.allowDev;
+    } catch {
+      return false;
+    }
   };
 
   const handleLogin = async (e) => {
@@ -32,15 +46,11 @@ function Login() {
     }
 
     if (!hasEnv || !auth) {
-      try {
-        const res = await fetch("https://armanist.com/public/categories");
-        const data = await res.json();
-        if (data?.allowDev) {
-          localStorage.setItem("devUser", email);
-          navigate("/checkout");
-          return;
-        }
-      } catch {}
+      if (await canUseDevLogin()) {
+        localStorage.setItem("devUser", email);
+        navigate("/checkout");
+        return;
+      }
       setError("Please configure Firebase environment");
       return;
     }
@@ -49,17 +59,14 @@ function Login() {
       await signInWithEmailAndPassword(auth, email, password);
       const token = await auth.currentUser.getIdToken();
       localStorage.setItem("idToken", token);
+      localStorage.removeItem("devUser");
       navigate("/checkout");
     } catch (e) {
-      try {
-        const res = await fetch("https://armanist.com/public/categories");
-        const data = await res.json();
-        if (data?.allowDev) {
-          localStorage.setItem("devUser", email);
-          navigate("/checkout");
-          return;
-        }
-      } catch {}
+      if (await canUseDevLogin()) {
+        localStorage.setItem("devUser", email);
+        navigate("/checkout");
+        return;
+      }
       setError(e?.message || "Login failed");
     }
   };

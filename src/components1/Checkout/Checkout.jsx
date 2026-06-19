@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./Checkout.css";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../../firebase.js";
+import { onAuthStateChanged } from "firebase/auth";
 
 function Checkout({ cartItems }) {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ function Checkout({ cartItems }) {
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
+  const [authChecked, setAuthChecked] = useState(false);
   const baseUrl =
     typeof window !== "undefined" && !/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
       ? window.location.origin
@@ -32,11 +34,25 @@ function Checkout({ cartItems }) {
   useEffect(() => {
     const hasToken = !!localStorage.getItem("idToken");
     const hasDevUser = !!localStorage.getItem("devUser");
-    const hasFirebaseUser = !!auth?.currentUser;
-    if (!hasToken && !hasDevUser && !hasFirebaseUser) {
-      navigate("/login");
+    if (hasToken || hasDevUser) {
+      setAuthChecked(true);
+      return;
     }
+    if (!auth) {
+      setAuthChecked(true);
+      navigate("/login");
+      return;
+    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setAuthChecked(true);
+      if (!user) {
+        navigate("/login");
+      }
+    });
+    return () => unsubscribe();
   }, [navigate]);
+
+  if (!authChecked) return null;
 
   const validatePhone = () => {
     if (phone.length < 7) {

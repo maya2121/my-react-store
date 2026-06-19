@@ -9,11 +9,24 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const baseUrl =
+    typeof window !== "undefined" && !/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
+      ? window.location.origin
+      : "https://armanist.com";
 
 const validateEmail = (emailStr) => {
-  const emailRegex = `/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/`;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return emailRegex.test(emailStr.trim());
 };
+  const canUseDevLogin = async () => {
+    try {
+      const res = await fetch(`${baseUrl}/health?t=${Date.now()}`, { cache: "no-store" });
+      const data = await res.json().catch(() => ({}));
+      return !!data?.allowDev;
+    } catch {
+      return false;
+    }
+  };
   const handleRegister = async () => {
     setError("");
 
@@ -31,9 +44,7 @@ const validateEmail = (emailStr) => {
 
     try {
       if (!hasEnv || !auth) {
-        const res = await fetch("https://armanist.com/public/categories");
-        const data = await res.json();
-        if (data?.allowDev) {
+        if (await canUseDevLogin()) {
           localStorage.setItem("devUser", email);
           navigate("/checkout");
           return;
@@ -53,15 +64,11 @@ const validateEmail = (emailStr) => {
       }
       
     } catch (e) {
-      try {
-        const res = await fetch("https://armanist.com/health");
-        const data = await res.json();
-        if (data?.allowDev) {
-          localStorage.setItem("devUser", email);
-          navigate("/checkout");
-          return;
-        }
-      } catch {}
+      if (await canUseDevLogin()) {
+        localStorage.setItem("devUser", email);
+        navigate("/checkout");
+        return;
+      }
       setError(e?.message || "Registration failed");
     }
   };
